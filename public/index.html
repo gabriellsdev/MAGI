@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MAGI SYSTEM — Multi-Agent Deliberation Supercomputer</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Teko:wght@500;700&family=Noto+Sans+JP:wght@700;900&display=swap" rel="stylesheet">
+</head>
+<body class="magi-body">
+  <div class="crt-overlay"></div>
+  <div class="scanlines"></div>
+
+  <!-- MAIN HUD WRAPPER -->
+  <div class="hud-container">
+    
+    <!-- TOP HEADER -->
+    <header class="hud-header">
+      <div class="logo-group">
+        <div class="magi-mark">MAGI</div>
+        <div class="logo-subtext">
+          <span class="system-code">NERV-01 // DELIBERATION ENGINE</span>
+          <span class="system-sub">SUPERCOMPUTER TRI-SYSTEM V1.5</span>
+        </div>
+      </div>
+
+      <div class="hud-controls">
+        <!-- VIEW MODE TRI-SWITCHER -->
+        <div class="control-item">
+          <label>VIEW:</label>
+          <div class="view-switch-group">
+            <button type="button" id="btn-view-anime" class="view-toggle-btn active" title="1:1 Anime NERV MAGI Interface">ANIME MAGI</button>
+            <button type="button" id="btn-view-tactical" class="view-toggle-btn" title="Minimalist NERV Terminal View">TACTICAL</button>
+            <button type="button" id="btn-view-diagnostic" class="view-toggle-btn" title="Full Cyber-Deck HUD & Diagnostics">DIAGNOSTIC</button>
+          </div>
+        </div>
+
+        <div class="control-item">
+          <label for="lang-select">LANG:</label>
+          <select id="lang-select" class="hud-select">
+            <option value="">AUTO-DETECT</option>
+            <option value="pt">PORTUGUÊS</option>
+            <option value="en">ENGLISH</option>
+            <option value="ja">日本語</option>
+            <option value="es">ESPAÑOL</option>
+            <option value="de">DEUTSCH</option>
+            <option value="fr">FRANÇAIS</option>
+          </select>
+        </div>
+
+        <div class="control-item">
+          <label for="mode-toggle">ENGINE:</label>
+          <select id="mode-toggle" class="hud-select">
+            <option value="mock">MOCK FIXTURES</option>
+            <option value="gemini">GEMINI 2.5 PRO</option>
+          </select>
+        </div>
+
+        <!-- AUDIO TOGGLE -->
+        <div class="control-item">
+          <button type="button" id="audio-toggle-btn" class="audio-btn" title="Synthesized Terminal Audio Feedback">AUDIO: OFF</button>
+        </div>
+
+        <!-- QUERY CONSOLE TOGGLE -->
+        <div class="control-item">
+          <button type="button" id="query-toggle-btn" class="query-toggle-btn" title="Toggle Query Console Panel">QUERY: HIDE ▲</button>
+        </div>
+
+        <div class="system-status-indicator">
+          <span class="status-pulse"></span>
+          <span class="status-label" id="system-status-text">SYSTEM READY</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- QUERY INPUT SECTION -->
+    <section class="query-section" id="query-section">
+      <div class="terminal-bar">
+        <span class="prompt-symbol">&gt;&gt;&gt;</span>
+        <span class="terminal-title">SUBMIT QUERY FOR SUPERCOMPUTER CONSENSUS</span>
+      </div>
+
+      <form id="magi-form" class="query-form">
+        <div class="input-container">
+          <textarea 
+            id="query-input" 
+            class="magi-textarea" 
+            rows="2" 
+            placeholder="Type your question here (e.g. Should we migrate to Rust?)" 
+            required></textarea>
+        </div>
+
+        <div class="query-actions">
+          <div class="quick-pills">
+            <span class="pill-label">PRESETS:</span>
+            <button type="button" class="preset-pill highlight-pill" data-query="How effective would a Magi supercomputer run society actually be?">Evangelion Society?</button>
+            <button type="button" class="preset-pill" data-query="Should we migrate to Rust?">Rust Rewrite?</button>
+            <button type="button" class="preset-pill" data-query="Should our engineering organization migrate to microservices?">Microservices?</button>
+            <button type="button" class="preset-pill" data-query="Devemos adotar pipelines de CI/CD automatizados?">CI/CD Pipeline?</button>
+          </div>
+
+          <div class="action-buttons-group">
+            <button type="button" id="copy-ascii-btn" class="hud-btn ascii-btn" title="Copy ASCII diagram of deliberation">COPY ASCII</button>
+            <button type="button" id="compare-btn" class="hud-btn compare-btn">COMPARE VS SINGLE GEMINI</button>
+            <button type="button" id="benchmark-btn" class="hud-btn benchmark-btn">RUN BENCHMARK</button>
+            <button type="submit" id="submit-btn" class="execute-btn">
+              <span class="btn-text">DELIBERATE [STREAM]</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- VIEW 0: ANIME MAGI (1:1 NERV SUPERCOMPUTER INTERFACE)     -->
+    <!-- ========================================================= -->
+    <section id="anime-view" class="anime-view-container">
+      <div class="anime-crt-monitor">
+        
+        <!-- Top Hazard Stripe -->
+        <div class="hazard-stripe top-hazard"></div>
+        
+        <!-- Main CRT Frame -->
+        <div class="anime-frame-inner">
+          
+          <!-- Top Bar: Left (質問 & Telemetry) | Right (解決 & Consensus Stamp) -->
+          <div class="anime-top-grid">
+            
+            <!-- Left Block: 質 問 & Telemetry -->
+            <div class="anime-telemetry-left">
+              <div class="anime-kanji-title">質 問</div>
+              <div class="anime-green-lines">
+                <div class="green-line"></div>
+                <div class="green-line"></div>
+              </div>
+              <div class="anime-code-block">
+                <div class="anime-code-row code-main">CODE : <span id="anime-code-val">473</span></div>
+                <div class="anime-code-sub">
+                  <div>FILE:MAGI_SYS</div>
+                  <div>EXTENTION:7312</div>
+                  <div>EX_MODE:<span id="anime-ex-mode">OFF</span></div>
+                  <div>PRIORITY:AAA</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Block: 解 決 & Consensus Stamp -->
+            <div class="anime-telemetry-right">
+              <div class="anime-kanji-title">解 決</div>
+              <div class="anime-green-lines">
+                <div class="green-line"></div>
+                <div class="green-line"></div>
+              </div>
+              <div class="anime-stamp-container">
+                <div class="anime-stamp-box stamp-standby" id="anime-consensus-stamp">
+                  <span id="anime-stamp-text">待 機</span>
+                </div>
+                <div class="anime-resolution-label" id="anime-resolution-label">RESOLUTION: STANDBY</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Center: The 3 Polygonal Triad Screens around Central MAGI Nexus -->
+          <div class="anime-triad-stage">
+            
+            <!-- Connecting Circuit Bus Lines -->
+            <div class="nexus-bus-line bus-top"></div>
+            <div class="nexus-bus-line bus-bottom-left"></div>
+            <div class="nexus-bus-line bus-bottom-right"></div>
+            <div class="nexus-bus-horizontal"></div>
+
+            <!-- TOP SCREEN: BALTHASAR • 2 -->
+            <div class="anime-screen-wrapper wrapper-balthasar">
+              <div class="anime-screen poly-balthasar state-standby" id="anime-screen-balthasar" data-agent="BALTHASAR">
+                <div class="anime-screen-inner">
+                  <div class="anime-agent-label">BALTHASAR • 2</div>
+                  <div class="anime-vote-text" id="anime-vote-balthasar">STANDBY</div>
+                  <div class="anime-conf-text" id="anime-conf-balthasar"></div>
+                </div>
+                <div class="anime-inspect-hint">[CLICK TO AUDIT]</div>
+              </div>
+            </div>
+
+            <!-- CENTRAL NEXUS: MAGI -->
+            <div class="anime-nexus-hub">
+              <div class="nexus-plaque" id="anime-nexus-magi">
+                <span>MAGI</span>
+              </div>
+            </div>
+
+            <!-- BOTTOM LEFT SCREEN: CASPER • 3 -->
+            <div class="anime-screen-wrapper wrapper-casper">
+              <div class="anime-screen poly-casper state-standby" id="anime-screen-casper" data-agent="CASPER">
+                <div class="anime-screen-inner">
+                  <div class="anime-agent-label">CASPER • 3</div>
+                  <div class="anime-vote-text" id="anime-vote-casper">STANDBY</div>
+                  <div class="anime-conf-text" id="anime-conf-casper"></div>
+                </div>
+                <div class="anime-inspect-hint">[CLICK TO AUDIT]</div>
+              </div>
+            </div>
+
+            <!-- BOTTOM RIGHT SCREEN: MELCHIOR • 1 -->
+            <div class="anime-screen-wrapper wrapper-melchior">
+              <div class="anime-screen poly-melchior state-standby" id="anime-screen-melchior" data-agent="MELCHIOR">
+                <div class="anime-screen-inner">
+                  <div class="anime-agent-label">MELCHIOR • 1</div>
+                  <div class="anime-vote-text" id="anime-vote-melchior">STANDBY</div>
+                  <div class="anime-conf-text" id="anime-conf-melchior"></div>
+                </div>
+                <div class="anime-inspect-hint">[CLICK TO AUDIT]</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Bottom Console Bar: Access Code, Question & Telemetry -->
+          <div class="anime-bottom-console">
+            <div class="anime-console-row">
+              <span class="console-label">access code:</span>
+              <span class="console-code-dots">********************************</span>
+            </div>
+            <div class="anime-console-row">
+              <span class="console-label">question:</span>
+              <div class="console-question-box" id="anime-console-question">
+                Should we migrate to Rust?
+              </div>
+            </div>
+            <div class="anime-console-row">
+              <span class="console-label">telemetry:</span>
+              <span class="console-telemetry-val" id="anime-telemetry-tokens" style="letter-spacing: 1px; color: #aae0ff; font-size: 0.85rem;">TOKENS: -- | EST. COST: --</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Bottom Hazard Stripe -->
+        <div class="hazard-stripe bottom-hazard"></div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- VIEW 1: TACTICAL TERMINAL VIEW (MINIMALIST NERV BOX)      -->
+    <!-- ========================================================= -->
+    <section id="tactical-view" class="tactical-view-container hidden">
+      <div class="tactical-box-frame">
+        
+        <!-- FRAME HEADER -->
+        <div class="tactical-frame-header">
+          <span class="box-corner">┌</span>
+          <span class="box-line-h"></span>
+          <span class="tactical-frame-title">MAGI SYSTEM</span>
+          <span class="box-line-h"></span>
+          <span class="box-corner">┐</span>
+        </div>
+
+        <div class="tactical-frame-content">
+          <!-- QUERY TERMINAL DISPLAY -->
+          <div class="tactical-query-group">
+            <div class="tactical-query-label">QUERY</div>
+            <div class="tactical-query-box" id="tactical-query-display">
+              Should we migrate to Rust?
+            </div>
+          </div>
+
+          <!-- TRIAD AGENT CARDS ROW -->
+          <div class="tactical-triad-grid">
+            
+            <!-- MELCHIOR -->
+            <div class="tactical-card melchior" id="tactical-card-melchior" data-agent="MELCHIOR">
+              <div class="tactical-card-header">
+                <div class="tactical-card-name">MELCHIOR</div>
+                <div class="tactical-card-role">ANALYSIS</div>
+              </div>
+              <div class="tactical-card-body">
+                <div class="tactical-stance-badge STANDBY" id="tactical-stance-melchior">STANDBY</div>
+                <div class="tactical-conf-metric" id="tactical-conf-melchior">--%</div>
+              </div>
+              <div class="tactical-inspect-tag">[CLICK TO INSPECT]</div>
+            </div>
+
+            <!-- BALTHASAR -->
+            <div class="tactical-card balthasar" id="tactical-card-balthasar" data-agent="BALTHASAR">
+              <div class="tactical-card-header">
+                <div class="tactical-card-name">BALTHASAR</div>
+                <div class="tactical-card-role">CRITIQUE</div>
+              </div>
+              <div class="tactical-card-body">
+                <div class="tactical-stance-badge STANDBY" id="tactical-stance-balthasar">STANDBY</div>
+                <div class="tactical-conf-metric" id="tactical-conf-balthasar">--%</div>
+              </div>
+              <div class="tactical-inspect-tag">[CLICK TO INSPECT]</div>
+            </div>
+
+            <!-- CASPER -->
+            <div class="tactical-card casper" id="tactical-card-casper" data-agent="CASPER">
+              <div class="tactical-card-header">
+                <div class="tactical-card-name">CASPER</div>
+                <div class="tactical-card-role">ALTERNATIVE</div>
+              </div>
+              <div class="tactical-card-body">
+                <div class="tactical-stance-badge STANDBY" id="tactical-stance-casper">STANDBY</div>
+                <div class="tactical-conf-metric" id="tactical-conf-casper">--%</div>
+              </div>
+              <div class="tactical-inspect-tag">[CLICK TO INSPECT]</div>
+            </div>
+
+          </div>
+
+          <!-- DELIBERATION FLOW ARROWS -->
+          <div class="tactical-flow-container">
+            <div class="tactical-arrow" id="tactical-arrow-1">↓</div>
+            <div class="tactical-flow-status" id="tactical-flow-status">DELIBERATION</div>
+            <div class="tactical-arrow" id="tactical-arrow-2">↓</div>
+          </div>
+
+          <!-- MAGI CORE ARBITRATION BLOCK -->
+          <div class="tactical-core-box" id="tactical-core-box">
+            <div class="tactical-core-header">MAGI CORE</div>
+            <div class="tactical-core-decision-line" id="tactical-core-decision-line">
+              <span class="tactical-decision-text" id="tactical-core-decision">STANDBY</span>
+              <span class="tactical-decision-sep">—</span>
+              <span class="tactical-decision-conf" id="tactical-core-conf">--%</span>
+            </div>
+            <div class="tactical-core-verdict-text" id="tactical-core-verdict">
+              Submit a query to initiate tri-system consensus arbitration.
+            </div>
+          </div>
+
+        </div>
+
+        <!-- FRAME FOOTER -->
+        <div class="tactical-frame-footer">
+          <span class="box-corner">└</span>
+          <span class="box-line-h"></span>
+          <span class="box-corner">┘</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- VIEW 2: DIAGNOSTIC / DEBUG HUD (FULL CYBER-DECK)          -->
+    <!-- ========================================================= -->
+    <div id="diagnostic-view" class="diagnostic-view-container hidden">
+      
+      <!-- DELIBERATION STATUS & STEPPER -->
+      <section id="deliberation-timeline" class="timeline-section hidden">
+        <div class="timeline-label">DELIBERATION TRAJECTORY (LIVE STREAM)</div>
+        <div class="stepper-track">
+          <div class="step-item" id="step-r0">
+            <div class="step-num">00</div>
+            <div class="step-desc">ROUND 0<br><span>INDEPENDENT</span></div>
+          </div>
+          <div class="step-connector"></div>
+          <div class="step-item" id="step-gate1">
+            <div class="step-num">--</div>
+            <div class="step-desc">CHECK 1<br><span>STANCE DELTA</span></div>
+          </div>
+          <div class="step-connector"></div>
+          <div class="step-item" id="step-r1">
+            <div class="step-num">01</div>
+            <div class="step-desc">ROUND 1<br><span>PEER CRITIQUE</span></div>
+          </div>
+          <div class="step-connector"></div>
+          <div class="step-item" id="step-gate2">
+            <div class="step-num">--</div>
+            <div class="step-desc">CHECK 2<br><span>CONVERGENCE</span></div>
+          </div>
+          <div class="step-connector"></div>
+          <div class="step-item" id="step-r2">
+            <div class="step-num">02</div>
+            <div class="step-desc">ROUND 2<br><span>FINAL REBUTTAL</span></div>
+          </div>
+          <div class="step-connector"></div>
+          <div class="step-item" id="step-core">
+            <div class="step-num">CORE</div>
+            <div class="step-desc">SYNTHESIS<br><span>ARBITRATION</span></div>
+          </div>
+        </div>
+        <div id="timeline-status-msg" class="timeline-status">CALCULATING PROBABILITIES...</div>
+      </section>
+
+      <!-- THREE AGENT PANELS (THE MAGI TRIAD) -->
+      <main class="agents-grid">
+        
+        <!-- MELCHIOR-1 (SCIENTIFIC / LOGIC) -->
+        <article class="agent-panel melchior" id="panel-melchior">
+          <div class="panel-header">
+            <div class="agent-id-group">
+              <span class="stream-beacon" id="beacon-melchior"></span>
+              <div class="agent-id">MELCHIOR-1</div>
+            </div>
+            <div class="agent-role">ANALYTICAL REASONING</div>
+            <div class="round-tabs" id="tabs-melchior">
+              <button type="button" class="tab-btn active" data-round="0">R0</button>
+              <button type="button" class="tab-btn" data-round="1">R1</button>
+              <button type="button" class="tab-btn" data-round="2">R2</button>
+            </div>
+          </div>
+
+          <div class="agent-stance-bar">
+            <div class="stance-badge" id="melchior-stance">STANDBY</div>
+            <div class="confidence-box">
+              <span class="conf-label">CONFIDENCE:</span>
+              <span class="conf-val" id="melchior-conf">--%</span>
+              <div class="conf-meter-track">
+                <div class="conf-meter-fill" id="melchior-meter" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="agent-content" id="melchior-content">
+            <div class="section-title">SUMMARY</div>
+            <p class="summary-text" id="melchior-summary">Awaiting query submission...</p>
+
+            <div class="section-title">KEY ARGUMENTS</div>
+            <ul class="bullet-list" id="melchior-arguments">
+              <li>System idle.</li>
+            </ul>
+
+            <div class="section-title">IDENTIFIED RISKS</div>
+            <ul class="bullet-list risk-list" id="melchior-risks">
+              <li>None noted.</li>
+            </ul>
+
+            <div class="peer-critiques-box hidden" id="melchior-critiques-box">
+              <div class="section-title">PEER CRITIQUES</div>
+              <div id="melchior-critiques"></div>
+            </div>
+          </div>
+        </article>
+
+        <!-- BALTHASAR-2 (CRITICAL / RISK) -->
+        <article class="agent-panel balthasar" id="panel-balthasar">
+          <div class="panel-header">
+            <div class="agent-id-group">
+              <span class="stream-beacon" id="beacon-balthasar"></span>
+              <div class="agent-id">BALTHASAR-2</div>
+            </div>
+            <div class="agent-role">CRITICAL REASONING &amp; RISK</div>
+            <div class="round-tabs" id="tabs-balthasar">
+              <button type="button" class="tab-btn active" data-round="0">R0</button>
+              <button type="button" class="tab-btn" data-round="1">R1</button>
+              <button type="button" class="tab-btn" data-round="2">R2</button>
+            </div>
+          </div>
+
+          <div class="agent-stance-bar">
+            <div class="stance-badge" id="balthasar-stance">STANDBY</div>
+            <div class="confidence-box">
+              <span class="conf-label">CONFIDENCE:</span>
+              <span class="conf-val" id="balthasar-conf">--%</span>
+              <div class="conf-meter-track">
+                <div class="conf-meter-fill" id="balthasar-meter" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="agent-content" id="balthasar-content">
+            <div class="section-title">SUMMARY</div>
+            <p class="summary-text" id="balthasar-summary">Awaiting query submission...</p>
+
+            <div class="section-title">KEY ARGUMENTS</div>
+            <ul class="bullet-list" id="balthasar-arguments">
+              <li>System idle.</li>
+            </ul>
+
+            <div class="section-title">IDENTIFIED RISKS</div>
+            <ul class="bullet-list risk-list" id="balthasar-risks">
+              <li>None noted.</li>
+            </ul>
+
+            <div class="peer-critiques-box hidden" id="balthasar-critiques-box">
+              <div class="section-title">PEER CRITIQUES</div>
+              <div id="balthasar-critiques"></div>
+            </div>
+          </div>
+        </article>
+
+        <!-- CASPER-3 (LATERAL / PRAGMATIC) -->
+        <article class="agent-panel casper" id="panel-casper">
+          <div class="panel-header">
+            <div class="agent-id-group">
+              <span class="stream-beacon" id="beacon-casper"></span>
+              <div class="agent-id">CASPER-3</div>
+            </div>
+            <div class="agent-role">ALTERNATIVE &amp; PRAGMATIC</div>
+            <div class="round-tabs" id="tabs-casper">
+              <button type="button" class="tab-btn active" data-round="0">R0</button>
+              <button type="button" class="tab-btn" data-round="1">R1</button>
+              <button type="button" class="tab-btn" data-round="2">R2</button>
+            </div>
+          </div>
+
+          <div class="agent-stance-bar">
+            <div class="stance-badge" id="casper-stance">STANDBY</div>
+            <div class="confidence-box">
+              <span class="conf-label">CONFIDENCE:</span>
+              <span class="conf-val" id="casper-conf">--%</span>
+              <div class="conf-meter-track">
+                <div class="conf-meter-fill" id="casper-meter" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="agent-content" id="casper-content">
+            <div class="section-title">SUMMARY</div>
+            <p class="summary-text" id="casper-summary">Awaiting query submission...</p>
+
+            <div class="section-title">KEY ARGUMENTS</div>
+            <ul class="bullet-list" id="casper-arguments">
+              <li>System idle.</li>
+            </ul>
+
+            <div class="section-title">IDENTIFIED RISKS</div>
+            <ul class="bullet-list risk-list" id="casper-risks">
+              <li>None noted.</li>
+            </ul>
+
+            <div class="peer-critiques-box hidden" id="casper-critiques-box">
+              <div class="section-title">PEER CRITIQUES</div>
+              <div id="casper-critiques"></div>
+            </div>
+          </div>
+        </article>
+
+      </main>
+
+      <!-- MAGI CORE VERDICT SECTION -->
+      <section class="core-section hidden" id="magi-core-section">
+        <div class="core-header">
+          <div class="core-title-group">
+            <span class="core-symbol">▲</span>
+            <span class="core-title">MAGI CORE ARBITRATION &amp; SYNTHESIS</span>
+          </div>
+          <div class="decision-badge" id="core-decision-badge">PENDING</div>
+        </div>
+
+        <div class="core-verdict-banner" id="core-verdict-banner">
+          <span class="verdict-tag">CORE VERDICT:</span>
+          <div class="verdict-statement" id="core-verdict-text">--</div>
+        </div>
+
+        <!-- QUALITY SCORES & FACTORS -->
+        <div class="core-grid">
+          <div class="core-col">
+            <div class="section-title">ARGUMENT QUALITY RATINGS (1 - 10)</div>
+            <div class="score-row">
+              <span class="score-name melchior-text">MELCHIOR-1:</span>
+              <div class="score-bar-track">
+                <div class="score-bar-fill melchior-fill" id="score-bar-melchior" style="width: 0%"></div>
+              </div>
+              <span class="score-num" id="score-val-melchior">--/10</span>
+            </div>
+            <div class="score-row">
+              <span class="score-name balthasar-text">BALTHASAR-2:</span>
+              <div class="score-bar-track">
+                <div class="score-bar-fill balthasar-fill" id="score-bar-balthasar" style="width: 0%"></div>
+              </div>
+              <span class="score-num" id="score-val-balthasar">--/10</span>
+            </div>
+            <div class="score-row">
+              <span class="score-name casper-text">CASPER-3:</span>
+              <div class="score-bar-track">
+                <div class="score-bar-fill casper-fill" id="score-bar-casper" style="width: 0%"></div>
+              </div>
+              <span class="score-num" id="score-val-casper">--/10</span>
+            </div>
+
+            <div class="section-title" style="margin-top: 1.2rem;">DECISIVE FACTORS</div>
+            <ul class="bullet-list" id="core-decisive-factors">
+              <li>--</li>
+            </ul>
+          </div>
+
+          <div class="core-col">
+            <div class="section-title">EXECUTIVE SYNTHESIS SUMMARY</div>
+            <p class="summary-text" id="core-synthesis-summary">--</p>
+
+            <div class="section-title" style="margin-top: 1.2rem;">DISSENTING OPINIONS ARCHIVE</div>
+            <ul class="bullet-list risk-list" id="core-dissenting-list">
+              <li>None recorded.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- METADATA FOOTER -->
+        <div class="core-meta-footer">
+          <div class="meta-pills" id="core-metadata-pills">
+            <span class="meta-pill" id="meta-duration">DURATION: -- ms</span>
+            <span class="meta-pill" id="meta-rounds">ROUNDS: --</span>
+            <span class="meta-pill" id="meta-model">MODEL: --</span>
+            <span class="meta-pill" id="meta-lang">LANG: --</span>
+            <span class="meta-pill" id="meta-tokens">TOKENS: --</span>
+            <span class="meta-pill" id="meta-cost">EST. COST: --</span>
+          </div>
+          <button type="button" class="json-toggle-btn" id="json-modal-btn">VIEW RAW JSON</button>
+        </div>
+      </section>
+
+    </div>
+
+  </div>
+
+  <!-- TACTICAL / ANIME AGENT INSPECT POPOVER MODAL -->
+  <div class="modal-backdrop hidden" id="tactical-agent-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title" id="tactical-modal-title">AGENT // REASONING AUDIT</div>
+        <div class="modal-actions">
+          <button type="button" class="close-btn" id="tactical-modal-close-btn">&times;</button>
+        </div>
+      </div>
+      <div class="modal-body" id="tactical-modal-body">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPARISON MODAL (MAGI VS SINGLE GEMINI) -->
+  <div class="modal-backdrop hidden" id="compare-modal">
+    <div class="modal-box modal-wide">
+      <div class="modal-header">
+        <div class="modal-title">COMPARISON: SINGLE GEMINI 3.1 PRO BASELINE VS. MAGI TRIAD DELIBERATION</div>
+        <div class="modal-actions">
+          <button type="button" class="close-btn" id="compare-close-btn">&times;</button>
+        </div>
+      </div>
+
+      <div class="compare-container">
+        <!-- LEFT: SINGLE BASELINE -->
+        <div class="compare-col baseline-col">
+          <div class="col-header single-hdr">
+            <span class="col-badge">BASELINE</span>
+            <h3>SINGLE GEMINI 3.1 PRO (MONOLITHIC)</h3>
+          </div>
+          <div class="col-body" id="compare-single-body">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- RIGHT: MAGI DELIBERATION -->
+        <div class="compare-col magi-col">
+          <div class="col-header magi-hdr">
+            <span class="col-badge">MAGI TRIAD</span>
+            <h3>MAGI DELIBERATION ARBITRATION</h3>
+          </div>
+          <div class="col-body" id="compare-magi-body">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <div class="compare-differential" id="compare-diff-summary">
+        <!-- Metrics summary -->
+      </div>
+    </div>
+  </div>
+
+  <!-- BENCHMARK MODAL -->
+  <div class="modal-backdrop hidden" id="benchmark-modal">
+    <div class="modal-box modal-wide">
+      <div class="modal-header">
+        <div class="modal-title">MAGI SUPERCOMPUTER // EVALUATION &amp; BENCHMARK SCORECARD</div>
+        <div class="modal-actions">
+          <button type="button" class="close-btn" id="benchmark-close-btn">&times;</button>
+        </div>
+      </div>
+      <div class="benchmark-content" id="benchmark-content">
+        <div class="loading-spinner">RUNNING BENCHMARK SUITE...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RAW JSON MODAL -->
+  <div class="modal-backdrop hidden" id="json-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">MAGI STRUCTURED PAYLOAD (JSON)</div>
+        <div class="modal-actions">
+          <button type="button" class="copy-btn" id="modal-copy-btn">COPY TO CLIPBOARD</button>
+          <button type="button" class="close-btn" id="modal-close-btn">&times;</button>
+        </div>
+      </div>
+      <pre class="modal-json" id="modal-json-content"></pre>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

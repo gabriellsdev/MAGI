@@ -1,0 +1,22 @@
+# Folder config
+desktop.ini
+
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+
+# Test coverage
+coverage/
+
+# Local outputs
+report.json
+*.local
+CliOutput.txt
+GeminiResponse.txt
+
+# Environment variables
+.env
+.env.local
+*.env
