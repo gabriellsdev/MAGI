@@ -144,7 +144,12 @@ export class DeliberationEngine {
     // ==========================================
     // STAGE 3: DELIBERATION ROUND 2 (MAX CAP)
     // ==========================================
-    if (this.maxRounds >= 2) {
+    const elapsedBeforeRound2 = Date.now() - startTime;
+    // On Vercel, functions have a 60s hard timeout. If Round 0 and Round 1 took > 38s,
+    // proceed directly to synthesis so that the connection is never killed mid-round.
+    const isServerlessTimeoutRisk = (process.env.VERCEL === '1' || process.env.AWS_LAMBDA_FUNCTION_NAME) && elapsedBeforeRound2 > 38000;
+
+    if (this.maxRounds >= 2 && !isServerlessTimeoutRisk) {
       this.hooks.onRoundStart?.(2, `Deliberation Round 2: Final Rebuttal & Stance Lock [${resolvedLanguage}]`);
       this.hooks.onAgentStart?.(2, 'MELCHIOR');
       this.hooks.onAgentStart?.(2, 'BALTHASAR');

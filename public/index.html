@@ -38,23 +38,23 @@
         </div>
 
         <div class="control-item">
-          <label for="lang-select">LANG:</label>
+          <label for="lang-select" id="lbl-ctrl-lang">LANG:</label>
           <select id="lang-select" class="hud-select">
-            <option value="">AUTO-DETECT</option>
+            <option value="en" selected>ENGLISH</option>
             <option value="pt">PORTUGUÊS</option>
-            <option value="en">ENGLISH</option>
-            <option value="ja">日本語</option>
             <option value="es">ESPAÑOL</option>
-            <option value="de">DEUTSCH</option>
             <option value="fr">FRANÇAIS</option>
+            <option value="de">DEUTSCH</option>
+            <option value="ru">РУССКИЙ</option>
+            <option value="ja">日本語</option>
           </select>
         </div>
 
         <div class="control-item">
-          <label for="mode-toggle">ENGINE:</label>
+          <label for="mode-toggle" id="lbl-ctrl-engine">ENGINE:</label>
           <select id="mode-toggle" class="hud-select">
             <option value="mock">MOCK FIXTURES</option>
-            <option value="gemini">GEMINI 2.5 PRO</option>
+            <option value="gemini">GEMINI 3.1 PRO</option>
           </select>
         </div>
 
@@ -79,7 +79,7 @@
     <section class="query-section" id="query-section">
       <div class="terminal-bar">
         <span class="prompt-symbol">&gt;&gt;&gt;</span>
-        <span class="terminal-title">SUBMIT QUERY FOR SUPERCOMPUTER CONSENSUS</span>
+        <span class="terminal-title" id="lbl-terminal-title">SUBMIT QUERY FOR SUPERCOMPUTER CONSENSUS</span>
       </div>
 
       <form id="magi-form" class="query-form">
@@ -94,11 +94,11 @@
 
         <div class="query-actions">
           <div class="quick-pills">
-            <span class="pill-label">PRESETS:</span>
-            <button type="button" class="preset-pill highlight-pill" data-query="How effective would a Magi supercomputer run society actually be?">Evangelion Society?</button>
-            <button type="button" class="preset-pill" data-query="Should we migrate to Rust?">Rust Rewrite?</button>
-            <button type="button" class="preset-pill" data-query="Should our engineering organization migrate to microservices?">Microservices?</button>
-            <button type="button" class="preset-pill" data-query="Devemos adotar pipelines de CI/CD automatizados?">CI/CD Pipeline?</button>
+            <span class="pill-label" id="lbl-presets">PRESETS:</span>
+            <button type="button" id="preset-btn-1" class="preset-pill highlight-pill" data-query="How effective would a Magi supercomputer run society actually be?">Evangelion Society?</button>
+            <button type="button" id="preset-btn-2" class="preset-pill" data-query="Should we migrate to Rust?">Rust Rewrite?</button>
+            <button type="button" id="preset-btn-3" class="preset-pill" data-query="Should our engineering organization migrate to microservices?">Microservices?</button>
+            <button type="button" id="preset-btn-4" class="preset-pill" data-query="Should we adopt automated continuous delivery pipelines?">CI/CD Pipeline?</button>
           </div>
 
           <div class="action-buttons-group">
@@ -220,28 +220,28 @@
           <!-- Bottom Console Bar: Access Code, Question & Telemetry -->
           <div class="anime-bottom-console">
             <div class="anime-console-row">
-              <span class="console-label">access code:</span>
+              <span class="console-label" id="lbl-access-code">access code:</span>
               <span class="console-code-dots">********************************</span>
             </div>
             <div class="anime-console-row">
-              <span class="console-label">question:</span>
+              <span class="console-label" id="lbl-question">question:</span>
               <form id="anime-question-form" class="anime-question-form">
                 <input
                   type="text"
                   id="anime-console-input"
                   class="console-question-input"
-                  placeholder="DIGITE SUA PERGUNTA (ENTER OU CLIQUE EM EXECUTE)..."
+                  placeholder="TYPE YOUR QUESTION (ENTER OR CLICK EXECUTE)..."
                   value="Should we migrate to Rust?"
                   autocomplete="off"
                   required
                 />
-                <button type="submit" id="anime-console-submit-btn" class="anime-console-submit-btn" title="Iniciar Deliberação dos Núcleos">
+                <button type="submit" id="anime-console-submit-btn" class="anime-console-submit-btn" title="Initiate Core Deliberation">
                   EXECUTE [↵]
                 </button>
               </form>
             </div>
             <div class="anime-console-row">
-              <span class="console-label">telemetry:</span>
+              <span class="console-label" id="lbl-telemetry">telemetry:</span>
               <span class="console-telemetry-val" id="anime-telemetry-tokens" style="letter-spacing: 1px; color: #aae0ff; font-size: 0.85rem;">TOKENS: -- | EST. COST: --</span>
             </div>
           </div>
@@ -260,18 +260,18 @@
         <div class="anime-chat-header">
           <div class="anime-chat-title-group">
             <span class="anime-chat-status-led" id="anime-chat-led"></span>
-            <span class="anime-chat-title">MAGI INTER-CORE LOG // CHAT &amp; DEBATE HISTORY</span>
+            <span class="anime-chat-title" id="lbl-chat-title">MAGI INTER-CORE LOG // CHAT &amp; DEBATE HISTORY</span>
             <span class="anime-chat-counter" id="anime-chat-counter">0 MSGS</span>
           </div>
           <div class="anime-chat-actions">
-            <button type="button" id="anime-chat-clear-btn" class="anime-chat-btn" title="Limpar histórico da sessão">LIMPAR</button>
-            <button type="button" id="anime-chat-toggle-btn" class="anime-chat-btn anime-chat-toggle" title="Esconder ou Mostrar Chat">ESCONDER CHAT ▲</button>
+            <button type="button" id="anime-chat-clear-btn" class="anime-chat-btn" title="Clear session history">CLEAR</button>
+            <button type="button" id="anime-chat-toggle-btn" class="anime-chat-btn anime-chat-toggle" title="Hide or Show Chat">HIDE CHAT ▲</button>
           </div>
         </div>
 
         <div class="anime-chat-body" id="anime-chat-body">
           <div class="anime-chat-messages" id="anime-chat-messages">
-            <div class="anime-chat-system-msg">
+            <div class="anime-chat-system-msg" id="anime-chat-system-msg">
               <span class="system-bracket">[SYSTEM]</span> MAGI INTER-CORE COMMUNICATION BUS ONLINE. AWAITING OPERATOR DIRECTIVES...
             </div>
           </div>

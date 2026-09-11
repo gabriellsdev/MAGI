@@ -49,6 +49,16 @@ export class GeminiProvider implements ILanguageModelProvider {
     // Timeout signal setup
     const abortSignal = request.config?.abortSignal || AbortSignal.timeout(this.timeoutMs);
 
+    const modelLower = model.toLowerCase();
+    const isGemini3 = modelLower.includes('3.') || modelLower.includes('3-') || modelLower.includes('gemini-3');
+    const isGemini25 = modelLower.includes('2.5');
+
+    const thinkingConfig = isGemini3
+      ? { thinkingLevel: 'LOW' as const }
+      : isGemini25
+      ? { thinkingBudget: 1024 }
+      : undefined;
+
     // Primary execution with exponential backoff for transient 429/5xx errors
     const executeCall = async () => {
       const response = await this.client.models.generateContent({
@@ -61,6 +71,7 @@ export class GeminiProvider implements ILanguageModelProvider {
           maxOutputTokens: request.config?.maxOutputTokens,
           responseMimeType: 'application/json',
           responseSchema: jsonSchema as any,
+          thinkingConfig: thinkingConfig as any,
           abortSignal,
         },
       });

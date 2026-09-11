@@ -170,6 +170,618 @@ document.addEventListener('DOMContentLoaded', () => {
   setViewMode(savedView);
 
   // -------------------------------------------------------------
+  // Comprehensive Internationalization (i18n) System (7 Languages)
+  // -------------------------------------------------------------
+  let currentLang = localStorage.getItem('magi_language') || 'en';
+
+  const I18N = {
+    en: {
+      ctrl_view: 'VIEW:',
+      ctrl_lang: 'LANG:',
+      ctrl_engine: 'ENGINE:',
+      view_anime: 'ANIME MAGI',
+      view_tactical: 'TACTICAL',
+      view_diagnostic: 'DIAGNOSTIC',
+      audio_on: 'AUDIO: ON',
+      audio_off: 'AUDIO: OFF',
+      query_hide: 'QUERY: HIDE ▲',
+      query_show: 'QUERY: SHOW ▼',
+      system_ready: 'SYSTEM READY',
+      system_busy: 'DELIBERATING...',
+      terminal_title: 'SUBMIT QUERY FOR SUPERCOMPUTER CONSENSUS',
+      query_placeholder: 'Type your question here (e.g. Should we migrate to Rust?)',
+      presets_label: 'PRESETS:',
+      preset_1_title: 'Evangelion Society?',
+      preset_1_query: 'How effective would a Magi supercomputer run society actually be?',
+      preset_2_title: 'Rust Rewrite?',
+      preset_2_query: 'Should we migrate to Rust?',
+      preset_3_title: 'Microservices?',
+      preset_3_query: 'Should our engineering organization migrate to microservices?',
+      preset_4_title: 'CI/CD Pipeline?',
+      preset_4_query: 'Should we adopt automated continuous delivery pipelines?',
+      btn_copy_ascii: 'COPY ASCII',
+      btn_compare: 'COMPARE VS SINGLE GEMINI',
+      btn_benchmark: 'RUN BENCHMARK',
+      btn_deliberate: 'DELIBERATE [STREAM]',
+      btn_deliberating: 'DELIBERATING...',
+      anime_res_standby: 'RESOLUTION: STANDBY',
+      anime_res_deliberating: 'DELIBERATING...',
+      anime_inspect_hint: '[CLICK TO AUDIT]',
+      console_access_code: 'access code:',
+      console_question: 'question:',
+      console_placeholder: 'TYPE YOUR QUESTION (ENTER OR CLICK EXECUTE)...',
+      console_execute_btn: 'EXECUTE [↵]',
+      console_busy_btn: 'BUSY...',
+      console_telemetry: 'telemetry:',
+      chat_title: 'MAGI INTER-CORE LOG // CHAT & DEBATE HISTORY',
+      chat_clear_btn: 'CLEAR',
+      chat_hide_btn: 'HIDE CHAT ▲',
+      chat_show_btn: 'SHOW CHAT ▼',
+      chat_system_bus: '[SYSTEM] MAGI INTER-CORE COMMUNICATION BUS ONLINE. AWAITING OPERATOR DIRECTIVES...',
+      chat_user_label: '👤 OPERATOR // SUBMITTED DIRECTIVE',
+      chat_round_prefix: 'ROUND',
+      chat_critiques_title: '💬 CROSS-EXAMINATION / PEER DEBATE:',
+      chat_divergence: (d, r) => `⚡ DIVERGENCE DETECTED (DELTA ${d}%). INITIATING ROUND ${r} OF PEER CRITIQUE.`,
+      chat_consensus: (d) => `✓ CONSENSUS REACHED BETWEEN CORES (DELTA ${d}%). PROCEEDING TO FINAL SYNTHESIS.`,
+      chat_synthesis_title: '⚖️ MAGI CORE // FINAL ARBITRATION',
+      chat_cleared_msg: '[SYSTEM] SESSION LOG CLEARED. AWAITING OPERATOR DIRECTIVES...',
+      agent_roles: {
+        MELCHIOR: 'MELCHIOR-1 [THE SCIENTIST]',
+        BALTHASAR: 'BALTHASAR-2 [THE MOTHER]',
+        CASPER: 'CASPER-3 [THE WOMAN]',
+      },
+      tactical_query_label: 'QUERY',
+      tactical_flow_title: 'CONSENSUS FLOW',
+      tactical_inspect_tag: '[CLICK TO INSPECT]',
+      tactical_roles: {
+        MELCHIOR: 'ANALYSIS',
+        BALTHASAR: 'CRITIQUE',
+        CASPER: 'ALTERNATIVE',
+      },
+      diag_step_r0: 'ROUND 0<br><span>INDEPENDENT</span>',
+      diag_step_gate1: 'CHECK 1<br><span>STANCE DELTA</span>',
+      diag_step_r1: 'ROUND 1<br><span>PEER CRITIQUE</span>',
+      diag_step_gate2: 'CHECK 2<br><span>CONVERGENCE</span>',
+      diag_step_r2: 'ROUND 2<br><span>FINAL REBUTTAL</span>',
+      diag_step_core: 'CORE<br><span>SYNTHESIS</span>',
+    },
+    pt: {
+      ctrl_view: 'VISÃO:',
+      ctrl_lang: 'IDIOMA:',
+      ctrl_engine: 'MOTOR:',
+      view_anime: 'MAGI ANIME',
+      view_tactical: 'TÁTICO',
+      view_diagnostic: 'DIAGNÓSTICO',
+      audio_on: 'ÁUDIO: LIG',
+      audio_off: 'ÁUDIO: DES',
+      query_hide: 'CONSULTA: OCULTAR ▲',
+      query_show: 'CONSULTA: EXIBIR ▼',
+      system_ready: 'SISTEMA PRONTO',
+      system_busy: 'DELIBERANDO...',
+      terminal_title: 'ENVIAR CONSULTA PARA CONSENSO DO SUPERCOMPUTADOR',
+      query_placeholder: 'Digite sua pergunta aqui (ex: Devemos migrar para Rust?)',
+      presets_label: 'EXEMPLOS:',
+      preset_1_title: 'Sociedade Evangelion?',
+      preset_1_query: 'Quão eficaz seria uma sociedade realmente administrada por um supercomputador Magi?',
+      preset_2_title: 'Reescrever em Rust?',
+      preset_2_query: 'Devemos migrar nossa base de código para Rust?',
+      preset_3_title: 'Microsserviços?',
+      preset_3_query: 'Nossa organização de engenharia deve migrar para microsserviços?',
+      preset_4_title: 'Pipeline CI/CD?',
+      preset_4_query: 'Devemos adotar pipelines automatizados de entrega contínua (CI/CD)?',
+      btn_copy_ascii: 'COPIAR ASCII',
+      btn_compare: 'COMPARAR VS GEMINI ÚNICO',
+      btn_benchmark: 'EXECUTAR BENCHMARK',
+      btn_deliberate: 'DELIBERAR [STREAM]',
+      btn_deliberating: 'DELIBERANDO...',
+      anime_res_standby: 'RESOLUÇÃO: AGUARDANDO',
+      anime_res_deliberating: 'DELIBERANDO...',
+      anime_inspect_hint: '[CLIQUE PARA AUDITAR]',
+      console_access_code: 'código de acesso:',
+      console_question: 'pergunta:',
+      console_placeholder: 'DIGITE SUA PERGUNTA (ENTER OU CLIQUE EM EXECUTE)...',
+      console_execute_btn: 'EXECUTAR [↵]',
+      console_busy_btn: 'OCUPADO...',
+      console_telemetry: 'telemetria:',
+      chat_title: 'LOG INTER-NÚCLEOS MAGI // HISTÓRICO E DEBATE',
+      chat_clear_btn: 'LIMPAR',
+      chat_hide_btn: 'ESCONDER CHAT ▲',
+      chat_show_btn: 'MOSTRAR CHAT ▼',
+      chat_system_bus: '[SISTEMA] BARRAMENTO INTER-NÚCLEOS MAGI ONLINE. AGUARDANDO DIRETRIZES DO OPERADOR...',
+      chat_user_label: '👤 OPERADOR // DIRETRIZ SUBMETIDA',
+      chat_round_prefix: 'RODADA',
+      chat_critiques_title: '💬 CONTESTAÇÃO / DEBATE COM PARES:',
+      chat_divergence: (d, r) => `⚡ DIVERGÊNCIA IDENTIFICADA (DELTA ${d}%). INICIANDO RODADA ${r} DE CONTESTAÇÃO CRUZADA.`,
+      chat_consensus: (d) => `✓ CONSENSO ALCANÇADO ENTRE OS NÚCLEOS (DELTA ${d}%). AVANÇANDO PARA ARBITRAGEM FINAL.`,
+      chat_synthesis_title: '⚖️ SÍNTESE FINAL // ARBITRAGEM MAGI CORE',
+      chat_cleared_msg: '[SISTEMA] HISTÓRICO DA SESSÃO LIMPO. AGUARDANDO DIRETRIZES DO OPERADOR...',
+      agent_roles: {
+        MELCHIOR: 'MELCHIOR-1 [A CIENTISTA]',
+        BALTHASAR: 'BALTHASAR-2 [A MÃE]',
+        CASPER: 'CASPER-3 [A MULHER]',
+      },
+      tactical_query_label: 'CONSULTA',
+      tactical_flow_title: 'FLUXO DE CONSENSO',
+      tactical_inspect_tag: '[CLIQUE PARA INSPECIONAR]',
+      tactical_roles: {
+        MELCHIOR: 'ANÁLISE',
+        BALTHASAR: 'CRÍTICA',
+        CASPER: 'ALTERNATIVA',
+      },
+      diag_step_r0: 'RODADA 0<br><span>INDEPENDENTE</span>',
+      diag_step_gate1: 'TESTE 1<br><span>DELTA POSIÇÃO</span>',
+      diag_step_r1: 'RODADA 1<br><span>CONTESTAÇÃO</span>',
+      diag_step_gate2: 'TESTE 2<br><span>CONVERGÊNCIA</span>',
+      diag_step_r2: 'RODADA 2<br><span>RÉPLICA FINAL</span>',
+      diag_step_core: 'CORE<br><span>SÍNTESE</span>',
+    },
+    es: {
+      ctrl_view: 'VISTA:',
+      ctrl_lang: 'IDIOMA:',
+      ctrl_engine: 'MOTOR:',
+      view_anime: 'MAGI ANIME',
+      view_tactical: 'TÁCTICO',
+      view_diagnostic: 'DIAGNÓSTICO',
+      audio_on: 'AUDIO: ENC',
+      audio_off: 'AUDIO: APAG',
+      query_hide: 'CONSULTA: OCULTAR ▲',
+      query_show: 'CONSULTA: MOSTRAR ▼',
+      system_ready: 'SISTEMA LISTO',
+      system_busy: 'DELIBERANDO...',
+      terminal_title: 'ENVIAR CONSULTA PARA CONSENSO DEL SUPERORDENADOR',
+      query_placeholder: 'Escriba su pregunta aquí (ej: ¿Debemos migrar a Rust?)',
+      presets_label: 'EJEMPLOS:',
+      preset_1_title: '¿Sociedad Evangelion?',
+      preset_1_query: '¿Qué tan efectiva sería una sociedad administrada por un superordenador Magi?',
+      preset_2_title: '¿Reescribir en Rust?',
+      preset_2_query: '¿Deberíamos migrar nuestro código base a Rust?',
+      preset_3_title: '¿Microservicios?',
+      preset_3_query: '¿Debería nuestra organización de ingeniería migrar a microservicios?',
+      preset_4_title: '¿Pipeline CI/CD?',
+      preset_4_query: '¿Deberíamos adoptar pipelines automatizados de entrega continua (CI/CD)?',
+      btn_copy_ascii: 'COPIAR ASCII',
+      btn_compare: 'COMPARAR VS GEMINI ÚNICO',
+      btn_benchmark: 'EJECUTAR BENCHMARK',
+      btn_deliberate: 'DELIBERAR [STREAM]',
+      btn_deliberating: 'DELIBERANDO...',
+      anime_res_standby: 'RESOLUCIÓN: EN ESPERA',
+      anime_res_deliberating: 'DELIBERANDO...',
+      anime_inspect_hint: '[CLIC PARA AUDITAR]',
+      console_access_code: 'código de acceso:',
+      console_question: 'pregunta:',
+      console_placeholder: 'ESCRIBA SU PREGUNTA (ENTER O CLIC EN EXECUTE)...',
+      console_execute_btn: 'EJECUTAR [↵]',
+      console_busy_btn: 'OCUPADO...',
+      console_telemetry: 'telemetría:',
+      chat_title: 'REGISTRO INTER-NÚCLEOS MAGI // HISTORIAL Y DEBATE',
+      chat_clear_btn: 'LIMPIAR',
+      chat_hide_btn: 'OCULTAR CHAT ▲',
+      chat_show_btn: 'MOSTRAR CHAT ▼',
+      chat_system_bus: '[SISTEMA] BUS DE COMUNICACIÓN INTER-NÚCLEOS ONLINE. ESPERANDO DIRECTIVAS...',
+      chat_user_label: '👤 OPERADOR // DIRECTIVA ENVIADA',
+      chat_round_prefix: 'RONDA',
+      chat_critiques_title: '💬 REFUTACIÓN / DEBATE ENTRE PARES:',
+      chat_divergence: (d, r) => `⚡ DIVERGENCIA DETECTADA (DELTA ${d}%). INICIANDO RONDA ${r} DE REFUTACIÓN.`,
+      chat_consensus: (d) => `✓ CONSENSO ALCANZADO ENTRE NÚCLEOS (DELTA ${d}%). AVANZANDO A SÍNTESIS FINAL.`,
+      chat_synthesis_title: '⚖️ SÍNTESIS FINAL // ARBITRAJE MAGI CORE',
+      chat_cleared_msg: '[SISTEMA] REGISTRO DE SESIÓN LIMPIO. ESPERANDO DIRECTIVAS DEL OPERADOR...',
+      agent_roles: {
+        MELCHIOR: 'MELCHIOR-1 [EL CIENTÍFICO]',
+        BALTHASAR: 'BALTHASAR-2 [LA MADRE]',
+        CASPER: 'CASPER-3 [LA MUJER]',
+      },
+      tactical_query_label: 'CONSULTA',
+      tactical_flow_title: 'FLUJO DE CONSENSO',
+      tactical_inspect_tag: '[CLIC PARA INSPECCIONAR]',
+      tactical_roles: {
+        MELCHIOR: 'ANÁLISIS',
+        BALTHASAR: 'CRÍTICA',
+        CASPER: 'ALTERNATIVA',
+      },
+      diag_step_r0: 'RONDA 0<br><span>INDEPENDIENTE</span>',
+      diag_step_gate1: 'CONTROL 1<br><span>DELTA POSTURA</span>',
+      diag_step_r1: 'RONDA 1<br><span>REFUTACIÓN</span>',
+      diag_step_gate2: 'CONTROL 2<br><span>CONVERGENCIA</span>',
+      diag_step_r2: 'RONDA 2<br><span>RÉPLICA FINAL</span>',
+      diag_step_core: 'CORE<br><span>SÍNTESIS</span>',
+    },
+    fr: {
+      ctrl_view: 'VUE:',
+      ctrl_lang: 'LANGUE:',
+      ctrl_engine: 'MOTEUR:',
+      view_anime: 'MAGI ANIME',
+      view_tactical: 'TACTIQUE',
+      view_diagnostic: 'DIAGNOSTIC',
+      audio_on: 'AUDIO: ON',
+      audio_off: 'AUDIO: OFF',
+      query_hide: 'REQUÊTE: MASQUER ▲',
+      query_show: 'REQUÊTE: AFFICHER ▼',
+      system_ready: 'SYSTÈME PRÊT',
+      system_busy: 'DÉLIBÉRATION...',
+      terminal_title: 'SOUMETTRE UNE REQUÊTE POUR CONSENSUS DU SUPERORDINATEUR',
+      query_placeholder: 'Entrez votre question ici (ex: Devrions-nous migrer vers Rust ?)',
+      presets_label: 'EXEMPLES:',
+      preset_1_title: 'Société Evangelion ?',
+      preset_1_query: 'Dans quelle mesure une société dirigée par le superordinateur Magi serait-elle efficace ?',
+      preset_2_title: 'Réécriture en Rust ?',
+      preset_2_query: 'Devrions-nous migrer notre codebase vers Rust ?',
+      preset_3_title: 'Microservices ?',
+      preset_3_query: 'Notre organisation d’ingénierie devrait-elle adopter les microservices ?',
+      preset_4_title: 'Pipeline CI/CD ?',
+      preset_4_query: 'Devrions-nous adopter des pipelines de déploiement continu automatisés (CI/CD) ?',
+      btn_copy_ascii: 'COPIER ASCII',
+      btn_compare: 'COMPARER VS GEMINI UNIQUE',
+      btn_benchmark: 'LANCER BENCHMARK',
+      btn_deliberate: 'DÉLIBÉRER [STREAM]',
+      btn_deliberating: 'DÉLIBÉRATION...',
+      anime_res_standby: 'RÉSOLUTION: EN ATTENTE',
+      anime_res_deliberating: 'DÉLIBÉRATION...',
+      anime_inspect_hint: '[CLIQUER POUR AUDITER]',
+      console_access_code: 'code d’accès:',
+      console_question: 'question:',
+      console_placeholder: 'TAPEZ VOTRE QUESTION (ENTRÉE OU CLIQUER SUR EXECUTE)...',
+      console_execute_btn: 'EXÉCUTER [↵]',
+      console_busy_btn: 'OCCUPÉ...',
+      console_telemetry: 'télémétrie:',
+      chat_title: 'JOURNAL INTER-CŒURS MAGI // HISTORIQUE ET DÉBAT',
+      chat_clear_btn: 'EFFACER',
+      chat_hide_btn: 'MASQUER CHAT ▲',
+      chat_show_btn: 'AFFICHER CHAT ▼',
+      chat_system_bus: '[SYSTÈME] BUS DE COMMUNICATION INTER-CŒURS EN LIGNE. EN ATTENTE DE DIRECTIVES...',
+      chat_user_label: '👤 OPÉRATEUR // DIRECTIVE SOUMISE',
+      chat_round_prefix: 'TOUR',
+      chat_critiques_title: '💬 CONTESTATION / DÉBAT ENTRE PAIRS:',
+      chat_divergence: (d, r) => `⚡ DIVERGENCE DÉTECTÉE (DELTA ${d}%). DÉBUT DU TOUR ${r} DE DÉBAT CROISÉ.`,
+      chat_consensus: (d) => `✓ CONSENSUS OBTENU ENTRE LES CŒURS (DELTA ${d}%). PASSAGE À LA SYNTHÈSE FINALE.`,
+      chat_synthesis_title: '⚖️ SYNTHÈSE FINALE // ARBITRAGE DU CŒUR MAGI',
+      chat_cleared_msg: '[SYSTÈME] JOURNAL DE SESSION EFFACÉ. EN ATTENTE DE DIRECTIVES...',
+      agent_roles: {
+        MELCHIOR: 'MELCHIOR-1 [LA SCIENTIFIQUE]',
+        BALTHASAR: 'BALTHASAR-2 [LA MÈRE]',
+        CASPER: 'CASPER-3 [LA FEMME]',
+      },
+      tactical_query_label: 'REQUÊTE',
+      tactical_flow_title: 'FLUX DE CONSENSUS',
+      tactical_inspect_tag: '[CLIQUER POUR INSPECTER]',
+      tactical_roles: {
+        MELCHIOR: 'ANALYSE',
+        BALTHASAR: 'CRITIQUE',
+        CASPER: 'ALTERNATIVE',
+      },
+      diag_step_r0: 'TOUR 0<br><span>INDÉPENDANT</span>',
+      diag_step_gate1: 'TEST 1<br><span>DELTA POSTURE</span>',
+      diag_step_r1: 'TOUR 1<br><span>CONTESTATION</span>',
+      diag_step_gate2: 'TEST 2<br><span>CONVERGENCE</span>',
+      diag_step_r2: 'TOUR 2<br><span>RÉPLIQUE FINALE</span>',
+      diag_step_core: 'CORE<br><span>SYNTHÈSE</span>',
+    },
+    de: {
+      ctrl_view: 'ANSICHT:',
+      ctrl_lang: 'SPRACHE:',
+      ctrl_engine: 'ENGINE:',
+      view_anime: 'ANIME MAGI',
+      view_tactical: 'TAKTISCH',
+      view_diagnostic: 'DIAGNOSE',
+      audio_on: 'AUDIO: EIN',
+      audio_off: 'AUDIO: AUS',
+      query_hide: 'ANFRAGE: VERBERGEN ▲',
+      query_show: 'ANFRAGE: ANZEIGEN ▼',
+      system_ready: 'SYSTEM BEREIT',
+      system_busy: 'BERATUNG LÄUFT...',
+      terminal_title: 'ANFRAGE FÜR SUPERCOMPUTER-KONSENS ÜBERMITTELN',
+      query_placeholder: 'Geben Sie Ihre Frage ein (z. B. Sollten wir zu Rust migrieren?)',
+      presets_label: 'VORLAGEN:',
+      preset_1_title: 'Evangelion Gesellschaft?',
+      preset_1_query: 'Wie effektiv wäre eine Gesellschaft, die tatsächlich von einem Magi-Supercomputer gesteuert wird?',
+      preset_2_title: 'Rust-Umschreibung?',
+      preset_2_query: 'Sollten wir unsere Codebasis auf Rust umstellen?',
+      preset_3_title: 'Microservices?',
+      preset_3_query: 'Sollte unsere Softwareentwicklung auf Microservices migrieren?',
+      preset_4_title: 'CI/CD Pipeline?',
+      preset_4_query: 'Sollten wir automatisierte Continuous-Delivery-Pipelines (CI/CD) einführen?',
+      btn_copy_ascii: 'ASCII KOPIEREN',
+      btn_compare: 'VERGLEICH VS EINZEL-GEMINI',
+      btn_benchmark: 'BENCHMARK STARTEN',
+      btn_deliberate: 'BERATEN [STREAM]',
+      btn_deliberating: 'BERATUNG LÄUFT...',
+      anime_res_standby: 'STATUS: BEREIT',
+      anime_res_deliberating: 'BERATUNG LÄUFT...',
+      anime_inspect_hint: '[KLICKEN ZUM PRÜFEN]',
+      console_access_code: 'zugangscode:',
+      console_question: 'frage:',
+      console_placeholder: 'FRAGE EINGEBEN (ENTER ODER EXECUTE KLICKEN)...',
+      console_execute_btn: 'AUSFÜHREN [↵]',
+      console_busy_btn: 'BESCHÄFTIGT...',
+      console_telemetry: 'telemetrie:',
+      chat_title: 'MAGI KERN-LOG // CHAT- UND DEBATTENVERLAUF',
+      chat_clear_btn: 'LÖSCHEN',
+      chat_hide_btn: 'CHAT VERBERGEN ▲',
+      chat_show_btn: 'CHAT ANZEIGEN ▼',
+      chat_system_bus: '[SYSTEM] MAGI KERN-KOMMUNIKATIONSBUS ONLINE. WARTE AUF OPERATOR-DIREKTIVEN...',
+      chat_user_label: '👤 OPERATOR // DIREKTIVE ÜBERMITTELT',
+      chat_round_prefix: 'RUNDE',
+      chat_critiques_title: '💬 KREUZBEFRAGUNG / PEER-DEBATTE:',
+      chat_divergence: (d, r) => `⚡ DIVERGENZ ERKANNT (DELTA ${d}%). STARTE RUNDE ${r} DER PEER-KRITIK.`,
+      chat_consensus: (d) => `✓ KONSENS ZWISCHEN KERNEN ERREICHT (DELTA ${d}%). WEITER ZUR FINALSIGNATUR.`,
+      chat_synthesis_title: '⚖️ MAGI CORE // FINALE SCHLICHTUNG',
+      chat_cleared_msg: '[SYSTEM] SITZUNGSLOG GELÖSCHT. WARTE AUF OPERATOR-DIREKTIVEN...',
+      agent_roles: {
+        MELCHIOR: 'MELCHIOR-1 [DER WISSENSCHAFTLER]',
+        BALTHASAR: 'BALTHASAR-2 [DIE MUTTER]',
+        CASPER: 'CASPER-3 [DIE FRAU]',
+      },
+      tactical_query_label: 'ANFRAGE',
+      tactical_flow_title: 'KONSENSFLUSS',
+      tactical_inspect_tag: '[KLICKEN ZUR INSPEKTION]',
+      tactical_roles: {
+        MELCHIOR: 'ANALYSE',
+        BALTHASAR: 'KRITIK',
+        CASPER: 'ALTERNATIVE',
+      },
+      diag_step_r0: 'RUNDE 0<br><span>UNABHÄNGIG</span>',
+      diag_step_gate1: 'CHECK 1<br><span>HALTUNGSDELTA</span>',
+      diag_step_r1: 'RUNDE 1<br><span>PEER-KRITIK</span>',
+      diag_step_gate2: 'CHECK 2<br><span>KONVERGENZ</span>',
+      diag_step_r2: 'RUNDE 2<br><span>FINALE ERWIDERUNG</span>',
+      diag_step_core: 'CORE<br><span>SYNTHESE</span>',
+    },
+    ru: {
+      ctrl_view: 'ВИД:',
+      ctrl_lang: 'ЯЗЫК:',
+      ctrl_engine: 'ДВИЖОК:',
+      view_anime: 'АНИМЕ МАГИ',
+      view_tactical: 'ТАКТИЧЕСКИЙ',
+      view_diagnostic: 'ДИАГНОСТИКА',
+      audio_on: 'ЗВУК: ВКЛ',
+      audio_off: 'ЗВУК: ВЫКЛ',
+      query_hide: 'ЗАПРОС: СКРЫТЬ ▲',
+      query_show: 'ЗАПРОС: ПОКАЗАТЬ ▼',
+      system_ready: 'СИСТЕМА ГОТОВА',
+      system_busy: 'ОБСУЖДЕНИЕ...',
+      terminal_title: 'ОТПРАВИТЬ ЗАПРОС ДЛЯ КОНСЕНСУСА СУПЕРКОМПЬЮТЕРА',
+      query_placeholder: 'Введите ваш вопрос (например: Стоит ли переходить на Rust?)',
+      presets_label: 'ПРЕСЕТЫ:',
+      preset_1_title: 'Общество Евангелиона?',
+      preset_1_query: 'Насколько эффективно общество управлялось бы суперкомпьютером МАГИ?',
+      preset_2_title: 'Переписать на Rust?',
+      preset_2_query: 'Стоит ли переписать наш проект на Rust?',
+      preset_3_title: 'Микросервисы?',
+      preset_3_query: 'Стоит ли нашей инженерной команде перейти на микросервисы?',
+      preset_4_title: 'CI/CD Пайплайн?',
+      preset_4_query: 'Следует ли внедрить автоматизированный конвейер непрерывной доставки (CI/CD)?',
+      btn_copy_ascii: 'КОПИРОВАТЬ ASCII',
+      btn_compare: 'СРАВНИТЬ С GEMINI',
+      btn_benchmark: 'ЗАПУСТИТЬ БЕНЧМАРК',
+      btn_deliberate: 'ОБСУДИТЬ [STREAM]',
+      btn_deliberating: 'ОБСУЖДЕНИЕ...',
+      anime_res_standby: 'РЕШЕНИЕ: ОЖИДАНИЕ',
+      anime_res_deliberating: 'ОБСУЖДЕНИЕ...',
+      anime_inspect_hint: '[НАЖМИТЕ ДЛЯ АНАЛИЗА]',
+      console_access_code: 'код доступа:',
+      console_question: 'вопрос:',
+      console_placeholder: 'ВВЕДИТЕ ВАШ ВОПРОС (ENTER ИЛИ НАЖМИТЕ EXECUTE)...',
+      console_execute_btn: 'ВЫПОЛНИТЬ [↵]',
+      console_busy_btn: 'ЗАНЯТО...',
+      console_telemetry: 'телеметрия:',
+      chat_title: 'МАГИ ЖУРНАЛ ЯДЕР // ИСТОРИЯ ЧАТА И ДЕБАТОВ',
+      chat_clear_btn: 'ОЧИСТИТЬ',
+      chat_hide_btn: 'СКРЫТЬ ЧАТ ▲',
+      chat_show_btn: 'ПОКАЗАТЬ ЧАТ ▼',
+      chat_system_bus: '[СИСТЕМА] ШИНА СВЯЗИ МЕЖДУ ЯДРАМИ МАГИ В СЕТИ. ОЖИДАНИЕ ДИРЕКТИВЫ ОПЕРАТОРА...',
+      chat_user_label: '👤 ОПЕРАТОР // НАПРАВЛЕНА ДИРЕКТИВА',
+      chat_round_prefix: 'РАУНД',
+      chat_critiques_title: '💬 ПЕРЕКРЕСТНЫЙ АНАЛИЗ / ДЕБАТЫ С ЯДРАМИ:',
+      chat_divergence: (d, r) => `⚡ ОБНАРУЖЕНО РАСХОЖДЕНИЕ (ДЕЛЬТА ${d}%). ЗАПУСК РАУНДА ${r} ВЗАИМНОЙ КРИТИКИ.`,
+      chat_consensus: (d) => `✓ ДОСТИГНУТ КОНСЕНСУС МЕЖДУ ЯДРАМИ (ДЕЛЬТА ${d}%). ПЕРЕХОД К ФИНАЛЬНОМУ СИНТЕЗУ.`,
+      chat_synthesis_title: '⚖️ МАГИ CORE // ФИНАЛЬНЫЙ АРБИТРАЖ',
+      chat_cleared_msg: '[СИСТЕМА] ЖУРНАЛ СЕССИИ ОЧИЩЕН. ОЖИДАНИЕ ДИРЕКТИВЫ ОПЕРАТОРА...',
+      agent_roles: {
+        MELCHIOR: 'МЕЛЬХИОР-1 [УЧЁНЫЙ]',
+        BALTHASAR: 'БАЛЬТАЗАР-2 [МАТЬ]',
+        CASPER: 'КАСПАР-3 [ЖЕНЩИНА]',
+      },
+      tactical_query_label: 'ЗАПРОС',
+      tactical_flow_title: 'ПОТОК КОНСЕНСУСА',
+      tactical_inspect_tag: '[НАЖМИТЕ ДЛЯ АНАЛИЗА]',
+      tactical_roles: {
+        MELCHIOR: 'АНАЛИЗ',
+        BALTHASAR: 'КРИТИКА',
+        CASPER: 'АЛЬТЕРНАТИВА',
+      },
+      diag_step_r0: 'РАУНД 0<br><span>НЕЗАВИСИМЫЙ</span>',
+      diag_step_gate1: 'ПРОВЕРКА 1<br><span>ДЕЛЬТА ПОЗИЦИЙ</span>',
+      diag_step_r1: 'РАУНД 1<br><span>КРИТИКА ПАРТНЕРОВ</span>',
+      diag_step_gate2: 'ПРОВЕРКА 2<br><span>СХОДИМОСТЬ</span>',
+      diag_step_r2: 'РАУНД 2<br><span>ИТОГОВАЯ ОТПОВЕДЬ</span>',
+      diag_step_core: 'CORE<br><span>СИНТЕЗ</span>',
+    },
+    ja: {
+      ctrl_view: '表示:',
+      ctrl_lang: '言語:',
+      ctrl_engine: 'エンジン:',
+      view_anime: 'アニメ MAGI',
+      view_tactical: 'タクティカル',
+      view_diagnostic: '診断 HUD',
+      audio_on: '音声: 有効',
+      audio_off: '音声: 無効',
+      query_hide: '質問欄: 非表示 ▲',
+      query_show: '質問欄: 表示 ▼',
+      system_ready: 'システム準備完了',
+      system_busy: '審議中...',
+      terminal_title: 'スーパーコンピュータ合意審議用クエリ送信',
+      query_placeholder: '質問を入力してください (例: Rustへの移行を行うべきか？)',
+      presets_label: 'プリセット:',
+      preset_1_title: 'エヴァンゲリオン社会?',
+      preset_1_query: 'MAGIスーパーコンピュータが管理する社会は実際にどれほど効果的か？',
+      preset_2_title: 'Rustへの移行?',
+      preset_2_query: 'システムをRustで書き直すべきか？',
+      preset_3_title: 'マイクロサービス化?',
+      preset_3_query: '開発組織はマイクロサービスアーキテクチャに移行すべきか？',
+      preset_4_title: 'CI/CDパイプライン?',
+      preset_4_query: '自動CI/CDデリバリーパイプラインを導入すべきか？',
+      btn_copy_ascii: 'ASCIIをコピー',
+      btn_compare: '単一GEMINIと比較',
+      btn_benchmark: 'ベンチマーク実行',
+      btn_deliberate: '審議開始 [STREAM]',
+      btn_deliberating: '審議中...',
+      anime_res_standby: '決議: 待機中',
+      anime_res_deliberating: '審議中...',
+      anime_inspect_hint: '[クリックして監査]',
+      console_access_code: 'アクセスコード:',
+      console_question: '質問内容:',
+      console_placeholder: '質問を入力してください (EnterキーまたはEXECUTEをクリック)...',
+      console_execute_btn: '実行 [↵]',
+      console_busy_btn: '処理中...',
+      console_telemetry: 'テレメトリ:',
+      chat_title: 'MAGI コア間通信ログ // ディベート履歴',
+      chat_clear_btn: 'クリア',
+      chat_hide_btn: 'チャット非表示 ▲',
+      chat_show_btn: 'チャット表示 ▼',
+      chat_system_bus: '[システム] MAGI コア間通信バス オンライン。オペレーター指令待機中...',
+      chat_user_label: '👤 オペレーター // 指令送信',
+      chat_round_prefix: 'ラウンド',
+      chat_critiques_title: '💬 相互検証 / コア間反論ディベート:',
+      chat_divergence: (d, r) => `⚡ 見解の相違を検出 (差分 ${d}%)。第${r}ラウンド相互批評を開始。`,
+      chat_consensus: (d) => `✓ 各コア間で合意に達しました (差分 ${d}%)。最終統合審議へ移行。`,
+      chat_synthesis_title: '⚖️ MAGI CORE // 最終裁定',
+      chat_cleared_msg: '[システム] セッション履歴をクリアしました。オペレーター指令待機中...',
+      agent_roles: {
+        MELCHIOR: 'MELCHIOR-1 [科学者]',
+        BALTHASAR: 'BALTHASAR-2 [母]',
+        CASPER: 'CASPER-3 [女]',
+      },
+      tactical_query_label: 'クエリ',
+      tactical_flow_title: '合意形成フロー',
+      tactical_inspect_tag: '[クリックして詳細]',
+      tactical_roles: {
+        MELCHIOR: '分析・論理',
+        BALTHASAR: '批評・防御',
+        CASPER: '現実解・代替',
+      },
+      diag_step_r0: '第0ラウンド<br><span>独立分析</span>',
+      diag_step_gate1: '検証1<br><span>見解差分</span>',
+      diag_step_r1: '第1ラウンド<br><span>相互批評</span>',
+      diag_step_gate2: '検証2<br><span>収束確認</span>',
+      diag_step_r2: '第2ラウンド<br><span>最終反論</span>',
+      diag_step_core: 'CORE<br><span>最終統合</span>',
+    },
+  };
+
+  function applyLanguage(lang) {
+    const t = I18N[lang] || I18N.en;
+    currentLang = lang;
+    if (langSelect && langSelect.value !== lang) {
+      langSelect.value = lang;
+    }
+
+    // Header controls
+    const lblCtrlLang = document.getElementById('lbl-ctrl-lang');
+    if (lblCtrlLang) lblCtrlLang.textContent = t.ctrl_lang;
+    const lblCtrlEngine = document.getElementById('lbl-ctrl-engine');
+    if (lblCtrlEngine) lblCtrlEngine.textContent = t.ctrl_engine;
+
+    // View toggle buttons
+    if (btnViewAnime) btnViewAnime.textContent = t.view_anime;
+    if (btnViewTactical) btnViewTactical.textContent = t.view_tactical;
+    if (btnViewDiagnostic) btnViewDiagnostic.textContent = t.view_diagnostic;
+
+    // Query section
+    const lblTerminalTitle = document.getElementById('lbl-terminal-title');
+    if (lblTerminalTitle) lblTerminalTitle.textContent = t.terminal_title;
+    if (queryInput) queryInput.placeholder = t.query_placeholder;
+    const lblPresets = document.getElementById('lbl-presets');
+    if (lblPresets) lblPresets.textContent = t.presets_label;
+
+    // Presets
+    const p1 = document.getElementById('preset-btn-1');
+    if (p1) { p1.textContent = t.preset_1_title; p1.setAttribute('data-query', t.preset_1_query); }
+    const p2 = document.getElementById('preset-btn-2');
+    if (p2) { p2.textContent = t.preset_2_title; p2.setAttribute('data-query', t.preset_2_query); }
+    const p3 = document.getElementById('preset-btn-3');
+    if (p3) { p3.textContent = t.preset_3_title; p3.setAttribute('data-query', t.preset_3_query); }
+    const p4 = document.getElementById('preset-btn-4');
+    if (p4) { p4.textContent = t.preset_4_title; p4.setAttribute('data-query', t.preset_4_query); }
+
+    // Action buttons
+    if (copyAsciiBtn) copyAsciiBtn.textContent = t.btn_copy_ascii;
+    if (compareBtn) compareBtn.textContent = t.btn_compare;
+    if (benchmarkBtn) benchmarkBtn.textContent = t.btn_benchmark;
+    if (submitBtn && !submitBtn.disabled) submitBtn.innerHTML = `<span class="btn-text">${t.btn_deliberate}</span>`;
+
+    // Anime Monitor & Console
+    if (animeResolutionLabel && (animeResolutionLabel.textContent.includes('STANDBY') || animeResolutionLabel.textContent.includes('ESPERA') || animeResolutionLabel.textContent.includes('AGUARDANDO') || animeResolutionLabel.textContent.includes('BEREIT') || animeResolutionLabel.textContent.includes('ОЖИДАНИЕ') || animeResolutionLabel.textContent.includes('待機'))) {
+      animeResolutionLabel.textContent = t.anime_res_standby;
+    }
+    const lblAccess = document.getElementById('lbl-access-code');
+    if (lblAccess) lblAccess.textContent = t.console_access_code;
+    const lblQuestion = document.getElementById('lbl-question');
+    if (lblQuestion) lblQuestion.textContent = t.console_question;
+    const lblTelemetry = document.getElementById('lbl-telemetry');
+    if (lblTelemetry) lblTelemetry.textContent = t.console_telemetry;
+    if (animeConsoleInput) animeConsoleInput.placeholder = t.console_placeholder;
+    if (animeConsoleSubmitBtn && !animeConsoleSubmitBtn.disabled) {
+      animeConsoleSubmitBtn.textContent = t.console_execute_btn;
+    }
+
+    // Anime Chat
+    const lblChatTitle = document.getElementById('lbl-chat-title');
+    if (lblChatTitle) lblChatTitle.textContent = t.chat_title;
+    if (animeChatClearBtn) animeChatClearBtn.textContent = t.chat_clear_btn;
+    if (animeChatToggleBtn) {
+      const isCollapsed = animeChatWrapper?.classList.contains('collapsed');
+      animeChatToggleBtn.textContent = isCollapsed ? t.chat_show_btn : t.chat_hide_btn;
+    }
+    const sysMsg = document.getElementById('anime-chat-system-msg');
+    if (sysMsg && chatMessageCount === 0) {
+      sysMsg.innerHTML = `<span class="system-bracket">[SYSTEM]</span> ${t.chat_system_bus}`;
+    }
+
+    // Tactical labels
+    const tQueryLbl = document.querySelector('.tactical-query-label');
+    if (tQueryLbl) tQueryLbl.textContent = t.tactical_query_label;
+    const tFlowTitle = document.querySelector('.tactical-flow-title');
+    if (tFlowTitle) tFlowTitle.textContent = t.tactical_flow_title;
+    const tInspectTags = document.querySelectorAll('.tactical-inspect-tag');
+    tInspectTags.forEach(el => el.textContent = t.tactical_inspect_tag);
+    const tAnimeInspectHints = document.querySelectorAll('.anime-inspect-hint');
+    tAnimeInspectHints.forEach(el => el.textContent = t.anime_inspect_hint);
+
+    // Tactical Roles
+    const tCardMelchiorRole = document.querySelector('#tactical-card-melchior .tactical-card-role');
+    if (tCardMelchiorRole) tCardMelchiorRole.textContent = t.tactical_roles.MELCHIOR;
+    const tCardBalthasarRole = document.querySelector('#tactical-card-balthasar .tactical-card-role');
+    if (tCardBalthasarRole) tCardBalthasarRole.textContent = t.tactical_roles.BALTHASAR;
+    const tCardCasperRole = document.querySelector('#tactical-card-casper .tactical-card-role');
+    if (tCardCasperRole) tCardCasperRole.textContent = t.tactical_roles.CASPER;
+
+    // Stepper track
+    const sR0 = document.querySelector('#step-r0 .step-desc');
+    if (sR0) sR0.innerHTML = t.diag_step_r0;
+    const sGate1 = document.querySelector('#step-gate1 .step-desc');
+    if (sGate1) sGate1.innerHTML = t.diag_step_gate1;
+    const sR1 = document.querySelector('#step-r1 .step-desc');
+    if (sR1) sR1.innerHTML = t.diag_step_r1;
+    const sGate2 = document.querySelector('#step-gate2 .step-desc');
+    if (sGate2) sGate2.innerHTML = t.diag_step_gate2;
+    const sR2 = document.querySelector('#step-r2 .step-desc');
+    if (sR2) sR2.innerHTML = t.diag_step_r2;
+    const sCore = document.querySelector('#step-core .step-desc');
+    if (sCore) sCore.innerHTML = t.diag_step_core;
+
+    updateAudioButtonUI();
+  }
+
+  langSelect?.addEventListener('change', () => {
+    const newLang = langSelect.value || 'en';
+    localStorage.setItem('magi_language', newLang);
+    applyLanguage(newLang);
+    playBeep(480, 0.04, 'triangle');
+  });
+
+  // Apply saved or default language (en) on boot
+  applyLanguage(currentLang);
+
+  // -------------------------------------------------------------
   // Web Audio Synthesizer (Zero External Dependencies)
   // -------------------------------------------------------------
   function playBeep(freq = 880, duration = 0.04, type = 'sine') {
@@ -273,7 +885,12 @@ document.addEventListener('DOMContentLoaded', () => {
   audioToggleBtn?.addEventListener('click', () => {
     audioEnabled = !audioEnabled;
     localStorage.setItem('magi_audio_enabled', audioEnabled ? 'true' : 'false');
-    updateAudioButtonUI();
+    const t = I18N[currentLang] || I18N.en;
+    if (audioToggleBtn) {
+      audioToggleBtn.textContent = audioEnabled ? t.audio_on : t.audio_off;
+      if (audioEnabled) audioToggleBtn.classList.add('active');
+      else audioToggleBtn.classList.remove('active');
+    }
     if (audioEnabled) {
       ensureAudioContext();
       playBeep(660, 0.06, 'triangle');
@@ -285,15 +902,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // -------------------------------------------------------------
   function setQueryCollapsed(collapsed) {
     if (!querySection || !queryToggleBtn) return;
+    const t = I18N[currentLang] || I18N.en;
     if (collapsed) {
       querySection.classList.add('collapsed');
       queryToggleBtn.classList.add('minimized');
-      queryToggleBtn.textContent = 'QUERY: SHOW ▼';
+      queryToggleBtn.textContent = t.query_show;
       localStorage.setItem('magi_query_collapsed', 'true');
     } else {
       querySection.classList.remove('collapsed');
       queryToggleBtn.classList.remove('minimized');
-      queryToggleBtn.textContent = 'QUERY: HIDE ▲';
+      queryToggleBtn.textContent = t.query_hide;
       localStorage.setItem('magi_query_collapsed', 'false');
     }
   }
@@ -384,11 +1002,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function addChatUserQuery(query) {
     const time = formatTimeNow();
+    const t = I18N[currentLang] || I18N.en;
     appendChatMessage(`
       <div class="chat-entry chat-user">
         <div class="chat-entry-header">
           <div class="chat-sender-info">
-            <span>👤 OPERADOR // DIRETRIZ SUBMETIDA</span>
+            <span>${t.chat_user_label}</span>
           </div>
           <span class="chat-time">[${time}]</span>
         </div>
@@ -399,12 +1018,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function addChatAgentMessage(agentId, roundNumber, output) {
     const time = formatTimeNow();
-    const agentNames = {
-      MELCHIOR: 'MELCHIOR-1 [A CIENTISTA]',
-      BALTHASAR: 'BALTHASAR-2 [A MÃE]',
-      CASPER: 'CASPER-3 [A MULHER]',
-    };
-    const roleName = agentNames[agentId.toUpperCase()] || agentId;
+    const t = I18N[currentLang] || I18N.en;
+    const roleName = t.agent_roles[agentId.toUpperCase()] || agentId;
     const agentClass = `chat-${agentId.toLowerCase()}`;
     const stance = output.stance || 'CONDITIONAL';
     const confPct = Math.round((output.confidence || 0.8) * 100);
@@ -413,12 +1028,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (Array.isArray(output.critiquesOfPeers) && output.critiquesOfPeers.length > 0) {
       const items = output.critiquesOfPeers.map(c => `
         <div class="chat-critique-item">
-          ↳ <span class="chat-critique-target">vs ${escapeHtml(c.targetAgent || 'PAR')}:</span> ${escapeHtml(c.critique || c.argument || '')}
+          ↳ <span class="chat-critique-target">vs ${escapeHtml(c.targetAgent || 'PEER')}:</span> ${escapeHtml(c.rebuttal || (Array.isArray(c.pointsOfDisagreement) && c.pointsOfDisagreement.length ? c.pointsOfDisagreement.join('; ') : '') || c.critique || '')}
         </div>
       `).join('');
       critiquesHtml = `
         <div class="chat-critiques-box">
-          <div class="chat-critiques-title">💬 CONTESTAÇÃO / DEBATE COM PARES:</div>
+          <div class="chat-critiques-title">${t.chat_critiques_title}</div>
           ${items}
         </div>
       `;
@@ -431,7 +1046,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <span>${roleName}</span>
             <span class="chat-stance-pill ${stance}">${stance} [${confPct}%]</span>
           </div>
-          <span class="chat-time">RODADA ${roundNumber} • [${time}]</span>
+          <span class="chat-time">${t.chat_round_prefix} ${roundNumber} • [${time}]</span>
         </div>
         <div class="chat-agent-summary">${escapeHtml(output.summary || '')}</div>
         ${critiquesHtml}
@@ -451,6 +1066,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function addChatSynthesisMessage(result) {
     const time = formatTimeNow();
+    const t = I18N[currentLang] || I18N.en;
     const decision = result.finalDecision || 'CONSENSUS_REACHED';
     const tokens = result.totalTokensUsed || 0;
     const cost = (result.estimatedCostUsd || 0).toFixed(4);
@@ -460,7 +1076,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="chat-entry chat-synthesis">
         <div class="chat-entry-header">
           <div class="chat-sender-info">
-            <span>🧠 MAGI CORE // VEREDITO FINAL</span>
+            <span>${t.chat_synthesis_title}</span>
             <span class="chat-stance-pill APPROVE">${escapeHtml(decision)}</span>
           </div>
           <span class="chat-time">[${time}]</span>
@@ -795,10 +1411,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       case 'disagreement': {
         const { roundNumber, report } = payload;
-        const deltaPct = Math.round(report.maxConfidenceDelta * 100);
+        const rawDelta = report.metrics?.maxConfidenceDelta ?? report.maxConfidenceDelta ?? 0;
+        const deltaPct = isNaN(rawDelta) ? 0 : Math.round(rawDelta * 100);
+        const t = I18N[currentLang] || I18N.en;
         timelineStatusMsg.textContent = `DIVERGENCE DETECTED (STANCE DELTA: ${deltaPct}%) -> ADVANCING TO PEER CRITIQUE`;
         if (tacticalFlowStatus) tacticalFlowStatus.textContent = `DIVERGENCE (Δ ${deltaPct}%)`;
-        addChatGateNotice('disagreement', `DIVERGÊNCIA IDENTIFICADA (DELTA ${deltaPct}%). INICIANDO RODADA ${roundNumber + 1} DE CONTESTAÇÃO CRUZADA.`);
+        addChatGateNotice('disagreement', t.chat_divergence(deltaPct, roundNumber + 1));
         playBeep(320, 0.08, 'sawtooth');
 
         if (roundNumber === 0) {
@@ -811,10 +1429,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       case 'consensus': {
         const { report } = payload;
-        const deltaPct = Math.round(report.maxConfidenceDelta * 100);
+        const rawDelta = report.metrics?.maxConfidenceDelta ?? report.maxConfidenceDelta ?? 0;
+        const deltaPct = isNaN(rawDelta) ? 0 : Math.round(rawDelta * 100);
+        const t = I18N[currentLang] || I18N.en;
         timelineStatusMsg.textContent = `CONSENSUS REACHED (STANCE DELTA: ${deltaPct}%) -> ADVANCING TO SYNTHESIS`;
         if (tacticalFlowStatus) tacticalFlowStatus.textContent = 'CONSENSUS ACHIEVED';
-        addChatGateNotice('consensus', `CONSENSO ALCANÇADO ENTRE OS NÚCLEOS (DELTA ${deltaPct}%). AVANÇANDO PARA ARBITRAGEM FINAL.`);
+        addChatGateNotice('consensus', t.chat_consensus(deltaPct));
         document.getElementById('step-gate1')?.classList.add('passed');
         break;
       }
