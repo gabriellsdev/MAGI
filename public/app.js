@@ -943,7 +943,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (animeResolutionLabel) animeResolutionLabel.textContent = 'DELIBERATING...';
 
     if (animeExMode) animeExMode.textContent = 'ACTIVE';
-    if (animeConsoleQuestion) animeConsoleQuestion.textContent = question;
+    if (animeConsoleInput) animeConsoleInput.value = question;
   }
 
   function renderAnimeAgent(agentId, output) {
