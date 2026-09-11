@@ -15,10 +15,37 @@ document.addEventListener('DOMContentLoaded', () => {
   const tacticalView = document.getElementById('tactical-view');
   const diagnosticView = document.getElementById('diagnostic-view');
 
-  // Audio Toggle
+  // Audio Toggle (Enabled by default)
   const audioToggleBtn = document.getElementById('audio-toggle-btn');
-  let audioEnabled = false;
+  const savedAudioPref = localStorage.getItem('magi_audio_enabled');
+  let audioEnabled = savedAudioPref !== null ? savedAudioPref === 'true' : true;
   let audioCtx = null;
+
+  function updateAudioButtonUI() {
+    if (!audioToggleBtn) return;
+    if (audioEnabled) {
+      audioToggleBtn.textContent = 'AUDIO: ON';
+      audioToggleBtn.classList.add('active');
+    } else {
+      audioToggleBtn.textContent = 'AUDIO: OFF';
+      audioToggleBtn.classList.remove('active');
+    }
+  }
+  updateAudioButtonUI();
+
+  // Browser Autoplay Policy: Unlock AudioContext on first user interaction anywhere
+  function ensureAudioContext() {
+    try {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    } catch {}
+  }
+  window.addEventListener('click', ensureAudioContext, { once: true });
+  window.addEventListener('keydown', ensureAudioContext, { once: true });
 
   // Query Section Collapsible Elements
   const queryToggleBtn = document.getElementById('query-toggle-btn');
@@ -57,7 +84,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const animeResolutionLabel = document.getElementById('anime-resolution-label');
   const animeCodeVal = document.getElementById('anime-code-val');
   const animeExMode = document.getElementById('anime-ex-mode');
-  const animeConsoleQuestion = document.getElementById('anime-console-question');
+  const animeQuestionForm = document.getElementById('anime-question-form');
+  const animeConsoleInput = document.getElementById('anime-console-input');
+  const animeConsoleSubmitBtn = document.getElementById('anime-console-submit-btn');
+
+  // Anime Chat Elements
+  const animeChatWrapper = document.getElementById('anime-chat-wrapper');
+  const animeChatToggleBtn = document.getElementById('anime-chat-toggle-btn');
+  const animeChatClearBtn = document.getElementById('anime-chat-clear-btn');
+  const animeChatMessages = document.getElementById('anime-chat-messages');
+  const animeChatCounter = document.getElementById('anime-chat-counter');
+  const animeChatLed = document.getElementById('anime-chat-led');
+  let chatMessageCount = 0;
 
   // Tactical / Anime Agent Inspect Modal Elements
   const tacticalAgentModal = document.getElementById('tactical-agent-modal');
@@ -234,13 +272,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   audioToggleBtn?.addEventListener('click', () => {
     audioEnabled = !audioEnabled;
+    localStorage.setItem('magi_audio_enabled', audioEnabled ? 'true' : 'false');
+    updateAudioButtonUI();
     if (audioEnabled) {
-      audioToggleBtn.textContent = 'AUDIO: ON';
-      audioToggleBtn.classList.add('active');
+      ensureAudioContext();
       playBeep(660, 0.06, 'triangle');
-    } else {
-      audioToggleBtn.textContent = 'AUDIO: OFF';
-      audioToggleBtn.classList.remove('active');
     }
   });
 
@@ -274,7 +310,175 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // -------------------------------------------------------------
-  // Initial Health Check
+  // Anime Inter-Core Discussion Chat & History Log
+  // -------------------------------------------------------------
+  function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function formatTimeNow() {
+    const d = new Date();
+    return d.toTimeString().split(' ')[0];
+  }
+
+  function updateChatCounter() {
+    if (animeChatCounter) {
+      animeChatCounter.textContent = `${chatMessageCount} ${chatMessageCount === 1 ? 'MSG' : 'MSGS'}`;
+    }
+  }
+
+  function setAnimeChatCollapsed(collapsed) {
+    if (!animeChatWrapper || !animeChatToggleBtn) return;
+    if (collapsed) {
+      animeChatWrapper.classList.add('collapsed');
+      animeChatToggleBtn.textContent = 'MOSTRAR CHAT ▼';
+      localStorage.setItem('magi_anime_chat_collapsed', 'true');
+    } else {
+      animeChatWrapper.classList.remove('collapsed');
+      animeChatToggleBtn.textContent = 'ESCONDER CHAT ▲';
+      localStorage.setItem('magi_anime_chat_collapsed', 'false');
+    }
+  }
+
+  animeChatToggleBtn?.addEventListener('click', () => {
+    const isCollapsed = animeChatWrapper?.classList.contains('collapsed');
+    setAnimeChatCollapsed(!isCollapsed);
+    playBeep(480, 0.03, 'sine');
+  });
+
+  animeChatClearBtn?.addEventListener('click', () => {
+    if (!animeChatMessages) return;
+    animeChatMessages.innerHTML = `
+      <div class="anime-chat-system-msg">
+        <span class="system-bracket">[SYSTEM]</span> HISTÓRICO LIMPO. NERV MAGI BUS ONLINE AGUARDANDO NOVAS DIRETRIZES...
+      </div>
+    `;
+    chatMessageCount = 0;
+    updateChatCounter();
+    playBeep(330, 0.05, 'triangle');
+  });
+
+  // Restore collapsed state (default: expanded)
+  if (localStorage.getItem('magi_anime_chat_collapsed') === 'true') {
+    setAnimeChatCollapsed(true);
+  }
+
+  function appendChatMessage(html) {
+    if (!animeChatMessages) return;
+    const temp = document.createElement('div');
+    temp.innerHTML = html.trim();
+    const msgEl = temp.firstElementChild;
+    if (msgEl) {
+      animeChatMessages.appendChild(msgEl);
+      chatMessageCount++;
+      updateChatCounter();
+      animeChatMessages.scrollTop = animeChatMessages.scrollHeight;
+    }
+  }
+
+  function addChatUserQuery(query) {
+    const time = formatTimeNow();
+    appendChatMessage(`
+      <div class="chat-entry chat-user">
+        <div class="chat-entry-header">
+          <div class="chat-sender-info">
+            <span>👤 OPERADOR // DIRETRIZ SUBMETIDA</span>
+          </div>
+          <span class="chat-time">[${time}]</span>
+        </div>
+        <div class="chat-user-text">&gt;&gt;&gt; ${escapeHtml(query)}</div>
+      </div>
+    `);
+  }
+
+  function addChatAgentMessage(agentId, roundNumber, output) {
+    const time = formatTimeNow();
+    const agentNames = {
+      MELCHIOR: 'MELCHIOR-1 [A CIENTISTA]',
+      BALTHASAR: 'BALTHASAR-2 [A MÃE]',
+      CASPER: 'CASPER-3 [A MULHER]',
+    };
+    const roleName = agentNames[agentId.toUpperCase()] || agentId;
+    const agentClass = `chat-${agentId.toLowerCase()}`;
+    const stance = output.stance || 'CONDITIONAL';
+    const confPct = Math.round((output.confidence || 0.8) * 100);
+
+    let critiquesHtml = '';
+    if (Array.isArray(output.critiquesOfPeers) && output.critiquesOfPeers.length > 0) {
+      const items = output.critiquesOfPeers.map(c => `
+        <div class="chat-critique-item">
+          ↳ <span class="chat-critique-target">vs ${escapeHtml(c.targetAgent || 'PAR')}:</span> ${escapeHtml(c.critique || c.argument || '')}
+        </div>
+      `).join('');
+      critiquesHtml = `
+        <div class="chat-critiques-box">
+          <div class="chat-critiques-title">💬 CONTESTAÇÃO / DEBATE COM PARES:</div>
+          ${items}
+        </div>
+      `;
+    }
+
+    appendChatMessage(`
+      <div class="chat-entry chat-agent ${agentClass}">
+        <div class="chat-entry-header">
+          <div class="chat-sender-info">
+            <span>${roleName}</span>
+            <span class="chat-stance-pill ${stance}">${stance} [${confPct}%]</span>
+          </div>
+          <span class="chat-time">RODADA ${roundNumber} • [${time}]</span>
+        </div>
+        <div class="chat-agent-summary">${escapeHtml(output.summary || '')}</div>
+        ${critiquesHtml}
+      </div>
+    `);
+  }
+
+  function addChatGateNotice(type, text) {
+    const time = formatTimeNow();
+    const isDivergence = type === 'disagreement';
+    appendChatMessage(`
+      <div class="chat-entry chat-gate ${isDivergence ? 'chat-disagreement' : 'chat-consensus'}">
+        <span>${isDivergence ? '⚡' : '✓'} [${time}] ${escapeHtml(text)}</span>
+      </div>
+    `);
+  }
+
+  function addChatSynthesisMessage(result) {
+    const time = formatTimeNow();
+    const decision = result.finalDecision || 'CONSENSUS_REACHED';
+    const tokens = result.totalTokensUsed || 0;
+    const cost = (result.estimatedCostUsd || 0).toFixed(4);
+    const duration = result.metadata?.durationMs ? (result.metadata.durationMs / 1000).toFixed(1) : '--';
+
+    appendChatMessage(`
+      <div class="chat-entry chat-synthesis">
+        <div class="chat-entry-header">
+          <div class="chat-sender-info">
+            <span>🧠 MAGI CORE // VEREDITO FINAL</span>
+            <span class="chat-stance-pill APPROVE">${escapeHtml(decision)}</span>
+          </div>
+          <span class="chat-time">[${time}]</span>
+        </div>
+        <div class="chat-verdict-text">${escapeHtml(result.coreVerdict || '')}</div>
+        <div class="chat-synthesis-summary">${escapeHtml(result.synthesisSummary || '')}</div>
+        <div class="chat-telemetry-row">
+          <span>⏱️ ${duration}s</span>
+          <span>🪙 ${tokens} TOKENS</span>
+          <span>💵 $${cost} USD</span>
+        </div>
+      </div>
+    `);
+  }
+
+  // -------------------------------------------------------------
+  // -------------------------------------------------------------
+  // Initial Health Check & Engine Mode Persistence
   // -------------------------------------------------------------
   async function checkHealth() {
     try {
@@ -282,10 +486,17 @@ document.addEventListener('DOMContentLoaded', () => {
       if (res.ok) {
         const data = await res.json();
         if (data.geminiConfigured) {
-          systemStatusText.textContent = 'ONLINE // GEMINI 2.5 PRO READY';
-          modeToggle.value = 'gemini';
+          systemStatusText.textContent = 'ONLINE // GEMINI 3.1 PRO READY';
         } else {
           systemStatusText.textContent = 'ONLINE // MOCK FIXTURES ACTIVE';
+        }
+
+        const savedMode = localStorage.getItem('magi_engine_mode');
+        if (savedMode) {
+          modeToggle.value = savedMode;
+        } else if (data.geminiConfigured) {
+          modeToggle.value = 'gemini';
+        } else {
           modeToggle.value = 'mock';
         }
       }
@@ -294,6 +505,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
   checkHealth();
+
+  modeToggle?.addEventListener('change', () => {
+    localStorage.setItem('magi_engine_mode', modeToggle.value);
+    playBeep(520, 0.04, 'sine');
+  });
 
   // -------------------------------------------------------------
   // Preset Pills & Query Input Sync
@@ -307,14 +523,33 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  queryInput.addEventListener('input', () => {
-    syncQueryDisplay(queryInput.value.trim() || 'Awaiting query...');
+  queryInput?.addEventListener('input', () => {
+    syncQueryDisplay(queryInput.value, 'main');
   });
 
-  function syncQueryDisplay(q) {
-    if (tacticalQueryDisplay) tacticalQueryDisplay.textContent = q;
-    if (animeConsoleQuestion) animeConsoleQuestion.textContent = q;
+  animeConsoleInput?.addEventListener('input', () => {
+    syncQueryDisplay(animeConsoleInput.value, 'anime');
+  });
+
+  function syncQueryDisplay(q, source = null) {
+    const text = q.trim() || 'Awaiting query...';
+    if (tacticalQueryDisplay) tacticalQueryDisplay.textContent = text;
+    if (animeConsoleInput && source !== 'anime') animeConsoleInput.value = q;
+    if (queryInput && source !== 'main') queryInput.value = q;
   }
+
+  // Allow direct submission directly from the anime console question field!
+  animeQuestionForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const q = (animeConsoleInput?.value || '').trim();
+    if (!q) return;
+    queryInput.value = q;
+    if (form.requestSubmit) {
+      form.requestSubmit();
+    } else {
+      form.dispatchEvent(new Event('submit', { cancelable: true }));
+    }
+  });
 
   // -------------------------------------------------------------
   // Beacon & Stepper Helpers
@@ -350,12 +585,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Auto-collapse query console to maximize MAGI screen visualization
     setQueryCollapsed(true);
     syncQueryDisplay(question);
+    addChatUserQuery(question);
     const language = langSelect.value || undefined;
     const isMock = modeToggle.value === 'mock';
 
     // UI Loading State
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="btn-text">DELIBERATING...</span>';
+    if (animeConsoleSubmitBtn) {
+      animeConsoleSubmitBtn.disabled = true;
+      animeConsoleSubmitBtn.textContent = 'BUSY...';
+    }
+    if (animeConsoleInput) animeConsoleInput.disabled = true;
     timelineSection.classList.remove('hidden');
     magiCoreSection.classList.add('hidden');
     tacticalCoreBox?.classList.remove('resolved');
@@ -387,15 +628,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let delayMs = 0;
         if (item.eventType === 'round_start') {
-          delayMs = 500;
+          delayMs = isMock ? 120 : 400;
         } else if (item.eventType === 'agent_start') {
-          delayMs = 250;
+          delayMs = isMock ? 80 : 200;
         } else if (item.eventType === 'agent_complete') {
-          delayMs = 900; // Gives 900ms between each supercomputer's vote lock-in!
+          delayMs = isMock ? 250 : 750;
         } else if (item.eventType === 'disagreement' || item.eventType === 'consensus') {
-          delayMs = 600;
+          delayMs = isMock ? 150 : 400;
         } else if (item.eventType === 'synthesis_start') {
-          delayMs = 1000; // Suspense during 調停 (Arbitration)
+          delayMs = isMock ? 250 : 800;
         }
 
         if (delayMs > 0) {
@@ -410,11 +651,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
+      const abortController = new AbortController();
+      const timeoutMs = isMock ? 25000 : 85000;
+      const timeoutTimer = setTimeout(() => {
+        abortController.abort();
+      }, timeoutMs);
+
       const response = await fetch('/api/deliberate/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question, language, mock: isMock }),
+        signal: abortController.signal,
       });
+      clearTimeout(timeoutTimer);
 
       if (!response.ok) {
         const errData = await response.json().catch(() => ({ error: 'Unknown server error' }));
@@ -458,9 +707,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
-      // Wait for all visual animations and audio beeps to finish playing
+      // Wait for all visual animations and audio beeps to finish playing with safety timeout
       if (isPlayingQueue || playbackQueue.length > 0) {
-        await new Promise(r => { queueDrainResolver = r; });
+        await Promise.race([
+          new Promise(r => { queueDrainResolver = r; }),
+          new Promise(r => setTimeout(r, 8000)),
+        ]);
       }
     } catch (err) {
       playbackQueue.length = 0;
@@ -474,6 +726,11 @@ document.addEventListener('DOMContentLoaded', () => {
       clearAllBeacons();
       submitBtn.disabled = false;
       submitBtn.innerHTML = '<span class="btn-text">DELIBERATE [STREAM]</span>';
+      if (animeConsoleSubmitBtn) {
+        animeConsoleSubmitBtn.disabled = false;
+        animeConsoleSubmitBtn.textContent = 'EXECUTE [↵]';
+      }
+      if (animeConsoleInput) animeConsoleInput.disabled = false;
       tacticalArrow1?.classList.remove('active');
       tacticalArrow2?.classList.remove('active');
       tacticalFlowStatus?.classList.remove('deliberating');
@@ -519,10 +776,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const { roundNumber, output } = payload;
         setBeacon(output.agentId, false);
 
-        // Render live diagnostic panel, tactical card, and anime polygon screen
+        // Render live diagnostic panel, tactical card, anime polygon screen, and inter-core chat
         renderLiveAgentOutput(output.agentId, roundNumber, output);
         renderTacticalAgent(output.agentId, output);
         renderAnimeAgent(output.agentId, output);
+        addChatAgentMessage(output.agentId, roundNumber, output);
 
         // Authentic 90s NERV confirmation beeps (Approved vs Rejected)
         if (output.stance === 'APPROVE') {
@@ -540,6 +798,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const deltaPct = Math.round(report.maxConfidenceDelta * 100);
         timelineStatusMsg.textContent = `DIVERGENCE DETECTED (STANCE DELTA: ${deltaPct}%) -> ADVANCING TO PEER CRITIQUE`;
         if (tacticalFlowStatus) tacticalFlowStatus.textContent = `DIVERGENCE (Δ ${deltaPct}%)`;
+        addChatGateNotice('disagreement', `DIVERGÊNCIA IDENTIFICADA (DELTA ${deltaPct}%). INICIANDO RODADA ${roundNumber + 1} DE CONTESTAÇÃO CRUZADA.`);
         playBeep(320, 0.08, 'sawtooth');
 
         if (roundNumber === 0) {
@@ -555,6 +814,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const deltaPct = Math.round(report.maxConfidenceDelta * 100);
         timelineStatusMsg.textContent = `CONSENSUS REACHED (STANCE DELTA: ${deltaPct}%) -> ADVANCING TO SYNTHESIS`;
         if (tacticalFlowStatus) tacticalFlowStatus.textContent = 'CONSENSUS ACHIEVED';
+        addChatGateNotice('consensus', `CONSENSO ALCANÇADO ENTRE OS NÚCLEOS (DELTA ${deltaPct}%). AVANÇANDO PARA ARBITRAGEM FINAL.`);
         document.getElementById('step-gate1')?.classList.add('passed');
         break;
       }
@@ -576,6 +836,7 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'complete': {
         currentResult = payload.result;
         renderResults(currentResult);
+        addChatSynthesisMessage(currentResult);
         break;
       }
 

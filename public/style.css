@@ -1628,9 +1628,11 @@ body.magi-body {
 
 .anime-view-container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
   margin-top: 0.5rem;
+  gap: 1.2rem;
 }
 
 .anime-crt-monitor {
@@ -2131,14 +2133,413 @@ body.magi-body {
   color: #ff8800;
 }
 
-.console-question-box {
-  border: 1px solid #ff7700;
-  padding: 0.35rem 0.8rem;
+.anime-question-form {
+  display: flex;
   flex-grow: 1;
-  color: #ffffff;
-  background: #05070c;
-  line-height: 1.3;
+  gap: 0.6rem;
+  align-items: center;
 }
+
+.console-question-input {
+  flex-grow: 1;
+  background: #05070c;
+  border: 1px solid #ff7700;
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  padding: 0.35rem 0.8rem;
+  outline: none;
+  border-radius: 2px;
+  line-height: 1.3;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease-out;
+}
+
+.console-question-input:focus {
+  border-color: #ffaa33;
+  box-shadow: 0 0 10px rgba(255, 136, 0, 0.4), inset 0 0 6px rgba(255, 136, 0, 0.2);
+  background: #080c14;
+}
+
+.console-question-input::placeholder {
+  color: #79869c;
+  font-size: 0.78rem;
+  letter-spacing: 1px;
+}
+
+.anime-console-submit-btn {
+  background: rgba(255, 119, 0, 0.15);
+  border: 1px solid #ff7700;
+  color: #ffaa33;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  padding: 0.35rem 0.9rem;
+  border-radius: 2px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.anime-console-submit-btn:hover:not(:disabled) {
+  background: #ff7700;
+  color: #000000;
+  box-shadow: 0 0 12px rgba(255, 119, 0, 0.6);
+}
+
+.anime-console-submit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: #555555;
+  color: #777777;
+}
+
+/* ============================================================= */
+/* ANIME INTER-CORE DEBATE CHAT & DELIBERATION HISTORY LOG       */
+/* ============================================================= */
+
+.anime-chat-wrapper {
+  width: 100%;
+  max-width: 980px;
+  background: #020408;
+  border: 2px solid #ff7700;
+  box-shadow: 0 0 25px rgba(255, 119, 0, 0.18), inset 0 0 30px rgba(0, 0, 0, 0.9);
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-bottom: 2rem;
+}
+
+.anime-chat-header {
+  background: #0d0800;
+  border-bottom: 2px solid #ff7700;
+  padding: 0.6rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.anime-chat-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.anime-chat-status-led {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #00ff9d;
+  box-shadow: 0 0 8px #00ff9d;
+  animation: ledPulse 2s infinite ease-in-out;
+}
+
+@keyframes ledPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.anime-chat-title {
+  font-size: 0.88rem;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+  color: #ff8800;
+  text-shadow: 0 0 6px rgba(255, 136, 0, 0.4);
+}
+
+.anime-chat-counter {
+  font-size: 0.72rem;
+  padding: 0.15rem 0.5rem;
+  background: rgba(255, 136, 0, 0.15);
+  border: 1px solid #ff7700;
+  color: #ffaa33;
+  border-radius: 2px;
+  letter-spacing: 1px;
+}
+
+.anime-chat-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.anime-chat-btn {
+  background: rgba(255, 119, 0, 0.08);
+  border: 1px solid #ff7700;
+  color: #ff8800;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+  letter-spacing: 1px;
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+
+.anime-chat-btn:hover {
+  background: #ff7700;
+  color: #000000;
+  box-shadow: 0 0 10px rgba(255, 119, 0, 0.5);
+}
+
+.anime-chat-toggle {
+  font-weight: bold;
+}
+
+.anime-chat-body {
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, padding 0.3s ease;
+  max-height: 540px;
+  overflow: hidden;
+  opacity: 1;
+}
+
+.anime-chat-wrapper.collapsed .anime-chat-body {
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.anime-chat-messages {
+  max-height: 520px;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  scroll-behavior: smooth;
+}
+
+/* Custom Cyberpunk Scrollbar */
+.anime-chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+.anime-chat-messages::-webkit-scrollbar-track {
+  background: #050810;
+}
+.anime-chat-messages::-webkit-scrollbar-thumb {
+  background: #ff7700;
+  border-radius: 2px;
+}
+
+.anime-chat-system-msg {
+  font-size: 0.8rem;
+  color: #79869c;
+  letter-spacing: 1px;
+  border-left: 2px solid #79869c;
+  padding-left: 0.6rem;
+}
+
+.system-bracket {
+  color: #00ff9d;
+  font-weight: bold;
+}
+
+/* Message Cards */
+.chat-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.8rem 1rem;
+  border-radius: 2px;
+  line-height: 1.45;
+  font-size: 0.86rem;
+  animation: chatMsgFadeIn 0.25s ease-out;
+}
+
+@keyframes chatMsgFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.chat-entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  letter-spacing: 1px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.35rem;
+  margin-bottom: 0.3rem;
+}
+
+.chat-sender-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: bold;
+}
+
+.chat-time {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+/* 1. User / Operator Message */
+.chat-entry.chat-user {
+  background: rgba(0, 229, 255, 0.05);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  border-left: 4px solid #00e5ff;
+}
+
+.chat-entry.chat-user .chat-sender-info {
+  color: #00e5ff;
+}
+
+.chat-user-text {
+  color: #ffffff;
+  font-size: 0.92rem;
+}
+
+/* 2. Agent Messages (MELCHIOR, BALTHASAR, CASPER) */
+.chat-entry.chat-agent {
+  background: rgba(10, 14, 22, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.chat-entry.chat-melchior {
+  border-left: 4px solid #ff8800;
+}
+.chat-entry.chat-melchior .chat-sender-info {
+  color: #ff8800;
+}
+
+.chat-entry.chat-balthasar {
+  border-left: 4px solid #ff3344;
+}
+.chat-entry.chat-balthasar .chat-sender-info {
+  color: #ff4455;
+}
+
+.chat-entry.chat-casper {
+  border-left: 4px solid #00e5ff;
+}
+.chat-entry.chat-casper .chat-sender-info {
+  color: #00e5ff;
+}
+
+.chat-stance-pill {
+  font-size: 0.72rem;
+  padding: 0.12rem 0.5rem;
+  border-radius: 2px;
+  font-weight: bold;
+  letter-spacing: 0.8px;
+}
+
+.chat-stance-pill.APPROVE {
+  background: rgba(0, 255, 157, 0.15);
+  color: #00ff9d;
+  border: 1px solid #00ff9d;
+}
+
+.chat-stance-pill.REJECT {
+  background: rgba(255, 51, 68, 0.15);
+  color: #ff3344;
+  border: 1px solid #ff3344;
+}
+
+.chat-stance-pill.CONDITIONAL {
+  background: rgba(255, 157, 0, 0.15);
+  color: #ff9d00;
+  border: 1px solid #ff9d00;
+}
+
+.chat-stance-pill.PIVOT {
+  background: rgba(0, 229, 255, 0.15);
+  color: #00e5ff;
+  border: 1px solid #00e5ff;
+}
+
+.chat-agent-summary {
+  color: #e2e8f0;
+}
+
+/* Inter-Core Critiques / Discussion */
+.chat-critiques-box {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.8rem;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 136, 0, 0.25);
+  border-radius: 2px;
+}
+
+.chat-critiques-title {
+  font-size: 0.72rem;
+  color: #ffaa33;
+  letter-spacing: 1px;
+  margin-bottom: 0.3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.chat-critique-item {
+  font-size: 0.82rem;
+  color: #b0c4de;
+  margin-bottom: 0.25rem;
+  line-height: 1.35;
+}
+
+.chat-critique-target {
+  font-weight: bold;
+  color: #ffcc00;
+}
+
+/* 3. Inter-Core Gate Notice (Disagreement / Consensus) */
+.chat-entry.chat-gate {
+  padding: 0.5rem 0.8rem;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.chat-entry.chat-disagreement {
+  background: rgba(255, 51, 68, 0.1);
+  border: 1px dashed #ff3344;
+  color: #ff6677;
+}
+
+.chat-entry.chat-consensus {
+  background: rgba(0, 255, 157, 0.1);
+  border: 1px dashed #00ff9d;
+  color: #00ff9d;
+}
+
+/* 4. Final MAGI Core Verdict */
+.chat-entry.chat-synthesis {
+  background: rgba(0, 255, 157, 0.06);
+  border: 2px solid #00ff9d;
+  box-shadow: 0 0 15px rgba(0, 255, 157, 0.15);
+}
+
+.chat-entry.chat-synthesis .chat-sender-info {
+  color: #00ff9d;
+}
+
+.chat-verdict-text {
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 0.3rem;
+}
+
+.chat-synthesis-summary {
+  color: #cbd5e1;
+  font-size: 0.86rem;
+}
+
+.chat-telemetry-row {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #79869c;
+  display: flex;
+  gap: 1rem;
+  letter-spacing: 0.5px;
+}
+
 
 
 

@@ -104,6 +104,28 @@ export async function readJsonBody(
   req: http.IncomingMessage,
   maxBytes: number = MAX_BODY_BYTES
 ): Promise<{ ok: true; data: any } | { ok: false; error: string; statusCode: number }> {
+  const anyReq = req as any;
+
+  // 1. If body was already parsed by Vercel serverless runtime or middleware
+  if (anyReq.body !== undefined && anyReq.body !== null) {
+    if (typeof anyReq.body === 'object') {
+      return { ok: true, data: anyReq.body };
+    }
+    if (typeof anyReq.body === 'string') {
+      if (!anyReq.body.trim()) return { ok: true, data: {} };
+      try {
+        return { ok: true, data: JSON.parse(anyReq.body) };
+      } catch {
+        return { ok: false, error: 'Malformed JSON payload in request body.', statusCode: 400 };
+      }
+    }
+  }
+
+  // 2. If the request stream has already ended
+  if (req.readableEnded || req.complete) {
+    return { ok: true, data: anyReq.body || {} };
+  }
+
   return new Promise(resolve => {
     let body = '';
     let bytesReceived = 0;

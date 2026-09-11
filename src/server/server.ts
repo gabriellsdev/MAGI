@@ -232,10 +232,13 @@ export function createMagiRequestHandler() {
 
         const sendEvent = (event: string, payload: any) => {
           res.write(`event: ${event}\ndata: ${JSON.stringify(payload)}\n\n`);
+          if (typeof (res as any).flush === 'function') {
+            (res as any).flush();
+          }
         };
 
         const isFast = process.env.NODE_ENV === 'test' || req.headers['x-fast-mock'] === 'true' || parsedUrl.searchParams.get('fast') === 'true';
-        const delayMs = isFast ? 0 : 750;
+        const delayMs = isFast ? 0 : 250;
 
         try {
           const provider = isMock
@@ -271,7 +274,7 @@ export function createMagiRequestHandler() {
           sendEvent('complete', { result });
 
           // Persist deliberation trajectory and agent analyses to Supabase
-          persistenceService.saveDeliberation(result).catch(err => {
+          await persistenceService.saveDeliberation(result).catch(err => {
             console.warn('[MAGI PERSISTENCE] Background save error:', err);
           });
         } catch (err: any) {

@@ -58,9 +58,9 @@
           </select>
         </div>
 
-        <!-- AUDIO TOGGLE -->
+        <!-- AUDIO TOGGLE (Enabled by default) -->
         <div class="control-item">
-          <button type="button" id="audio-toggle-btn" class="audio-btn" title="Synthesized Terminal Audio Feedback">AUDIO: OFF</button>
+          <button type="button" id="audio-toggle-btn" class="audio-btn active" title="Synthesized Terminal Audio Feedback">AUDIO: ON</button>
         </div>
 
         <!-- QUERY CONSOLE TOGGLE -->
@@ -225,9 +225,20 @@
             </div>
             <div class="anime-console-row">
               <span class="console-label">question:</span>
-              <div class="console-question-box" id="anime-console-question">
-                Should we migrate to Rust?
-              </div>
+              <form id="anime-question-form" class="anime-question-form">
+                <input
+                  type="text"
+                  id="anime-console-input"
+                  class="console-question-input"
+                  placeholder="DIGITE SUA PERGUNTA (ENTER OU CLIQUE EM EXECUTE)..."
+                  value="Should we migrate to Rust?"
+                  autocomplete="off"
+                  required
+                />
+                <button type="submit" id="anime-console-submit-btn" class="anime-console-submit-btn" title="Iniciar Deliberação dos Núcleos">
+                  EXECUTE [↵]
+                </button>
+              </form>
             </div>
             <div class="anime-console-row">
               <span class="console-label">telemetry:</span>
@@ -240,6 +251,31 @@
         <!-- Bottom Hazard Stripe -->
         <div class="hazard-stripe bottom-hazard"></div>
 
+      </div>
+
+      <!-- ========================================================= -->
+      <!-- ANIME INTER-CORE DEBATE CHAT & DELIBERATION HISTORY LOG   -->
+      <!-- ========================================================= -->
+      <div class="anime-chat-wrapper" id="anime-chat-wrapper">
+        <div class="anime-chat-header">
+          <div class="anime-chat-title-group">
+            <span class="anime-chat-status-led" id="anime-chat-led"></span>
+            <span class="anime-chat-title">MAGI INTER-CORE LOG // CHAT &amp; DEBATE HISTORY</span>
+            <span class="anime-chat-counter" id="anime-chat-counter">0 MSGS</span>
+          </div>
+          <div class="anime-chat-actions">
+            <button type="button" id="anime-chat-clear-btn" class="anime-chat-btn" title="Limpar histórico da sessão">LIMPAR</button>
+            <button type="button" id="anime-chat-toggle-btn" class="anime-chat-btn anime-chat-toggle" title="Esconder ou Mostrar Chat">ESCONDER CHAT ▲</button>
+          </div>
+        </div>
+
+        <div class="anime-chat-body" id="anime-chat-body">
+          <div class="anime-chat-messages" id="anime-chat-messages">
+            <div class="anime-chat-system-msg">
+              <span class="system-bracket">[SYSTEM]</span> MAGI INTER-CORE COMMUNICATION BUS ONLINE. AWAITING OPERATOR DIRECTIVES...
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
