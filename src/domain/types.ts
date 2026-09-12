@@ -9,6 +9,27 @@ export type AgentStance =
 
 import type { TokenUsage } from '../providers/provider.interface.js';
 
+export type EpistemicType = 
+  | 'FACT'
+  | 'INFERENCE'
+  | 'ASSUMPTION'
+  | 'HEURISTIC'
+  | 'SPECULATION';
+
+export interface EpistemicClaim {
+  statement: string;
+  type: EpistemicType;
+  confidence: number;
+  requiresEvidence: boolean;
+}
+
+export interface EpistemicAudit {
+  factCount: number;
+  unverifiedAssumptionsCount: number;
+  evidenceConfidenceScore: number;
+  strongestEvidenceAgent: AgentId;
+}
+
 export interface AgentCritique {
   targetAgent: AgentId;
   pointsOfAgreement: string[];
@@ -25,6 +46,7 @@ export interface AgentStructuredOutput {
   criticalAssumptions: string[];
   identifiedRisks: string[];
   recommendedAction: string;
+  claims?: EpistemicClaim[];
   critiquesOfPeers?: AgentCritique[];
   language?: string;
   tokensUsed?: TokenUsage;
@@ -41,6 +63,8 @@ export interface DisagreementReport {
   reason: string;
   divergentAgents: AgentId[];
   metrics: DisagreementMetrics;
+  substantiveTopics?: string[];
+  isFilteredByArbiter?: boolean;
 }
 
 export interface DeliberationRound {
@@ -78,6 +102,7 @@ export interface MagiSynthesisResult {
   deliberationRoundsCount: number;
   initialAnalysis: Record<AgentId, AgentStructuredOutput>;
   rounds: DeliberationRound[];
+  epistemicAudit?: EpistemicAudit;
   totalTokensUsed?: number;
   estimatedCostUsd?: number;
   metadata?: MagiExecutionMetadata;

@@ -89,7 +89,7 @@ export class DeliberationEngine {
     };
 
     // Evaluate disagreement on Round 0
-    let disagreementReport = this.detector.evaluate(initialAnalysis);
+    let disagreementReport = await this.detector.evaluate(initialAnalysis, question);
 
     if (!disagreementReport.hasSignificantDisagreement) {
       this.hooks.onConsensusReached?.(0, disagreementReport);
@@ -127,7 +127,7 @@ export class DeliberationEngine {
       CASPER: casper1,
     };
 
-    disagreementReport = this.detector.evaluate(round1Outputs);
+    disagreementReport = await this.detector.evaluate(round1Outputs, question);
     rounds.push({
       roundNumber: 1,
       agentOutputs: round1Outputs,
@@ -176,7 +176,7 @@ export class DeliberationEngine {
         CASPER: casper2,
       };
 
-      disagreementReport = this.detector.evaluate(round2Outputs);
+      disagreementReport = await this.detector.evaluate(round2Outputs, question);
       rounds.push({
         roundNumber: 2,
         agentOutputs: round2Outputs,

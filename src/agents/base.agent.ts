@@ -42,7 +42,8 @@ export abstract class BaseAgent implements IAgent {
 
     const userPrompt = `QUESTION FOR MAGI:\n"${question}"\n\n` +
       `Provide your independent assessment according to your analytical archetype.\n` +
-      `You must output a structured assessment adhering to the schema, including your stance, confidence (0.0 to 1.0), summary, keyArguments, criticalAssumptions, identifiedRisks, and recommendedAction.`;
+      `You must output a structured assessment adhering to the schema, including your stance, confidence (0.0 to 1.0), summary, keyArguments, criticalAssumptions, identifiedRisks, recommendedAction, and claims.\n` +
+      `For claims, classify your primary assertions by epistemic type (FACT, INFERENCE, ASSUMPTION, HEURISTIC, or SPECULATION), including your confidence and whether empirical evidence is required.`;
 
     const response = await this.provider.generateStructured({
       model: this.model,
@@ -72,12 +73,15 @@ export abstract class BaseAgent implements IAgent {
     const peerSummaries = Object.entries(peerOutputs)
       .filter(([id]) => id !== this.id)
       .map(([id, output]) => {
+        const claimsSummary = output.claims && output.claims.length > 0
+          ? `\n- Epistemic Claims:\n${output.claims.map(c => `  * [${c.type}] ${c.statement} (Conf: ${c.confidence}, NeedsEvidence: ${c.requiresEvidence})`).join('\n')}`
+          : '';
         return `### PEER: ${id}\n` +
           `- Stance: ${output.stance} (Confidence: ${output.confidence})\n` +
           `- Summary: ${output.summary}\n` +
           `- Key Arguments:\n${output.keyArguments.map(arg => `  * ${arg}`).join('\n')}\n` +
           `- Identified Risks:\n${output.identifiedRisks.map(risk => `  * ${risk}`).join('\n')}\n` +
-          `- Recommendation: ${output.recommendedAction}`;
+          `- Recommendation: ${output.recommendedAction}${claimsSummary}`;
       })
       .join('\n\n');
 
@@ -85,8 +89,8 @@ export abstract class BaseAgent implements IAgent {
 
     const systemInstruction = `${this.personaPrompt}\n\n` +
       `You are ${this.name} (${this.id}), participating in DELIBERATION ROUND ${roundNumber}.\n` +
-      `Examine your peers' stances, premises, and counterarguments with intellectual honesty.\n` +
-      `If a peer raised a point that exposes a flaw or risk in your previous stance, you are expected to update or qualify your stance.\n` +
+      `Examine your peers' stances, premises, epistemic claims, and counterarguments with intellectual honesty.\n` +
+      `If a peer raised a point that exposes a flaw or unverified assumption in your previous stance, you are expected to update or qualify your stance.\n` +
       `If their arguments are flawed, provide a rigorous critique.` +
       langInstruction;
 
@@ -97,9 +101,10 @@ export abstract class BaseAgent implements IAgent {
       `PEER ASSESSMENTS:\n` +
       `${peerSummaries}\n\n` +
       `DELIBERATION INSTRUCTIONS:\n` +
-      `1. Directly evaluate the arguments and risks presented by your peers.\n` +
+      `1. Directly evaluate the arguments, claims, and risks presented by your peers.\n` +
       `2. Include explicit critiquesOfPeers for the peers you disagree or agree with.\n` +
-      `3. State your updated stance (APPROVE, REJECT, CONDITIONAL, PIVOT, or INCONCLUSIVE), confidence, revised key arguments, and updated recommendation.`;
+      `3. Provide categorized claims (FACT, INFERENCE, ASSUMPTION, HEURISTIC, SPECULATION) for your key points.\n` +
+      `4. State your updated stance (APPROVE, REJECT, CONDITIONAL, PIVOT, or INCONCLUSIVE), confidence, revised key arguments, and updated recommendation.`;
 
     const response = await this.provider.generateStructured({
       model: this.model,

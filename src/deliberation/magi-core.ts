@@ -5,6 +5,8 @@ import type {
   DeliberationRound,
   MagiSynthesisResult,
   MagiExecutionMetadata,
+  EpistemicClaim,
+  EpistemicAudit,
 } from '../domain/types.js';
 import { MagiSynthesisOutputSchema } from '../domain/schemas.js';
 import { getLanguageInstruction } from './language-detector.js';
@@ -42,7 +44,8 @@ export class MagiCore {
       `2. Evaluate the inherent strength of the arguments, the validity of underlying assumptions, and the severity of identified risks.\n` +
       `3. If a minority agent (such as Balthasar) identifies an unmitigated catastrophic failure mode or if Melchior proves an empirical contradiction, that objection holds decisive weight regardless of other votes.\n` +
       `4. Score each agent's argument quality objectively from 1 to 10.\n` +
-      `5. Deliver an authoritative synthesis that reconciles logic, risk, and pragmatic reality into a definitive verdict.\n\n` +
+      `5. Perform an EPISTEMIC AUDIT: evaluate facts vs unverified assumptions. Give decisive advantage to empirical facts over unsupported speculation.\n` +
+      `6. Deliver an authoritative synthesis that reconciles logic, risk, and pragmatic reality into a definitive verdict.\n\n` +
       langInstruction;
 
     const roundsSummary = rounds.length === 0
@@ -56,7 +59,10 @@ export class MagiCore {
                   const critiques = out.critiquesOfPeers?.length
                     ? `\n  Critiques: ${out.critiquesOfPeers.map(c => `[vs ${c.targetAgent}: ${c.rebuttal}]`).join('; ')}`
                     : '';
-                  return `* ${id}: Stance=${out.stance}, Conf=${out.confidence}\n  Summary: ${out.summary}${critiques}`;
+                  const claims = out.claims?.length
+                    ? `\n  Claims: ${out.claims.map(c => `[${c.type}] ${c.statement} (Conf: ${c.confidence})`).join('; ')}`
+                    : '';
+                  return `* ${id}: Stance=${out.stance}, Conf=${out.confidence}\n  Summary: ${out.summary}${critiques}${claims}`;
                 })
                 .join('\n');
           })
@@ -64,12 +70,15 @@ export class MagiCore {
 
     const initialSummary = Object.entries(initialAnalysis)
       .map(([id, out]) => {
+        const claims = out.claims?.length
+          ? `\n  - Epistemic Claims: ${out.claims.map(c => `[${c.type}] ${c.statement} (Conf: ${c.confidence})`).join('; ')}`
+          : '';
         return `* ${id} (Round 0):\n` +
           `  - Stance: ${out.stance} (Confidence: ${out.confidence})\n` +
           `  - Summary: ${out.summary}\n` +
           `  - Key Arguments: ${out.keyArguments.join('; ')}\n` +
           `  - Identified Risks: ${out.identifiedRisks.join('; ')}\n` +
-          `  - Recommendation: ${out.recommendedAction}`;
+          `  - Recommendation: ${out.recommendedAction}${claims}`;
       })
       .join('\n\n');
 
@@ -115,6 +124,52 @@ export class MagiCore {
     const resolvedModel = this.model || (this.provider as any).defaultModel || 'gemini-3.1-pro-preview';
     const estimatedCostUsd = calculateGeminiCost(resolvedModel, promptTokens, completionTokens);
 
+    // Compute or fall back epistemic audit across all initial & deliberation claims
+    let epistemicAudit: EpistemicAudit | undefined = parsed.epistemicAudit;
+    if (!epistemicAudit) {
+      const allClaims: { agentId: AgentId; claim: EpistemicClaim }[] = [];
+      Object.entries(initialAnalysis).forEach(([id, out]) => {
+        out.claims?.forEach(claim => allClaims.push({ agentId: id as AgentId, claim }));
+      });
+      rounds.forEach(r => {
+        Object.entries(r.agentOutputs).forEach(([id, out]) => {
+          out.claims?.forEach(claim => allClaims.push({ agentId: id as AgentId, claim }));
+        });
+      });
+
+      if (allClaims.length > 0) {
+        const factCount = allClaims.filter(c => c.claim.type === 'FACT').length;
+        const unverifiedAssumptionsCount = allClaims.filter(
+          c => c.claim.type === 'ASSUMPTION' || (c.claim.requiresEvidence && c.claim.type !== 'FACT')
+        ).length;
+
+        const ratio = factCount / (factCount + unverifiedAssumptionsCount || 1);
+        const evidenceConfidenceScore = Math.min(10, Math.max(1, Math.round(ratio * 9 + 1)));
+
+        const agentFactScores: Record<AgentId, number> = { MELCHIOR: 0, BALTHASAR: 0, CASPER: 0 };
+        allClaims.forEach(({ agentId, claim }) => {
+          if (claim.type === 'FACT') agentFactScores[agentId] += 2;
+          if (claim.type === 'INFERENCE') agentFactScores[agentId] += 1;
+        });
+
+        let strongestAgent: AgentId = 'MELCHIOR';
+        let highestScore = -1;
+        (Object.keys(agentFactScores) as AgentId[]).forEach(id => {
+          if (agentFactScores[id] > highestScore) {
+            highestScore = agentFactScores[id];
+            strongestAgent = id;
+          }
+        });
+
+        epistemicAudit = {
+          factCount,
+          unverifiedAssumptionsCount,
+          evidenceConfidenceScore,
+          strongestEvidenceAgent: strongestAgent,
+        };
+      }
+    }
+
     const metadata: MagiExecutionMetadata = {
       timestamp: new Date().toISOString(),
       durationMs,
@@ -138,6 +193,7 @@ export class MagiCore {
       deliberationRoundsCount: rounds.length,
       initialAnalysis,
       rounds,
+      epistemicAudit,
       totalTokensUsed,
       estimatedCostUsd,
       metadata,

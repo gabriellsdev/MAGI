@@ -21,6 +21,8 @@ export * from './agents/casper.agent.js';
 // Deliberation exports
 export * from './deliberation/disagreement-detector.interface.js';
 export * from './deliberation/rule-based-disagreement-detector.js';
+export * from './deliberation/llm-disagreement-arbiter.js';
+export * from './deliberation/hybrid-disagreement-detector.js';
 export * from './deliberation/language-detector.js';
 export * from './deliberation/magi-core.js';
 export * from './deliberation/deliberation-engine.js';
@@ -39,11 +41,14 @@ import { MagiCore } from './deliberation/magi-core.js';
 import { DeliberationEngine, type DeliberationEngineHooks } from './deliberation/deliberation-engine.js';
 import type { ILanguageModelProvider } from './providers/provider.interface.js';
 import type { IDisagreementDetector } from './deliberation/disagreement-detector.interface.js';
+import { HybridDisagreementDetector } from './deliberation/hybrid-disagreement-detector.js';
 import { GeminiProvider } from './providers/gemini/gemini.provider.js';
 
 export interface MagiSystemOptions {
   provider?: ILanguageModelProvider;
   disagreementDetector?: IDisagreementDetector;
+  useArbiter?: boolean;
+  arbiterModel?: string;
   hooks?: DeliberationEngineHooks;
   model?: string;
 }
@@ -55,12 +60,20 @@ export function createMagiSystem(options: MagiSystemOptions = {}): DeliberationE
   const casper = new CasperAgent(provider, options.model);
   const magiCore = new MagiCore(provider, options.model);
 
+  let detector: IDisagreementDetector | undefined = options.disagreementDetector;
+  if (!detector && options.useArbiter) {
+    detector = new HybridDisagreementDetector({
+      provider,
+      arbiterOptions: { model: options.arbiterModel ?? options.model },
+    });
+  }
+
   return new DeliberationEngine({
     melchior,
     balthasar,
     casper,
     magiCore,
-    disagreementDetector: options.disagreementDetector,
+    disagreementDetector: detector,
     hooks: options.hooks,
   });
 }
