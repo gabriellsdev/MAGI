@@ -24,3 +24,7 @@ results/
 .env
 .env.local
 *.env
+
+# Local / partial evaluation data
+data/user-human-rankings.json
+data/sample-human-scores.json
