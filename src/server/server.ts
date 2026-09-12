@@ -12,6 +12,7 @@ import { runBenchmarkSuite } from '../benchmark/benchmark-runner.js';
 import { persistenceService } from '../db/supabase.service.js';
 import { InMemoryRateLimiter } from './rate-limiter.js';
 import { readJsonBody, validateDeliberationInput } from './validator.js';
+import { globalObservabilityTracker } from '../observability/observability-tracker.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -153,6 +154,18 @@ export function createMagiRequestHandler() {
       }
 
       // -------------------------------------------------------------
+      // API: GET /api/metrics (Observability & Operational Analytics)
+      // -------------------------------------------------------------
+      if (req.method === 'GET' && pathname === '/api/metrics') {
+        if (!generalLimiter.apply(req, res)) return;
+
+        const metrics = globalObservabilityTracker.getMetrics();
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(metrics));
+        return;
+      }
+
+      // -------------------------------------------------------------
       // API: POST /api/compare (Single Gemini vs MAGI Triad)
       // -------------------------------------------------------------
       if (req.method === 'POST' && pathname === '/api/compare') {
@@ -271,6 +284,7 @@ export function createMagiRequestHandler() {
           });
 
           const result = await magi.run(val.data.question, { language });
+          globalObservabilityTracker.recordExecution(result);
           sendEvent('complete', { result });
 
           // Persist deliberation trajectory and agent analyses to Supabase
@@ -321,6 +335,7 @@ export function createMagiRequestHandler() {
           });
 
           const result = await magi.run(val.data.question, { language });
+          globalObservabilityTracker.recordExecution(result);
 
           // Persist deliberation trajectory and agent analyses to Supabase
           persistenceService.saveDeliberation(result).catch(err => {

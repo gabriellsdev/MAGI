@@ -35,6 +35,10 @@ export * from './evaluation/eval-runner.js';
 export * from './evaluation/ablation.types.js';
 export * from './evaluation/ablation-runner.js';
 
+// Routing & Observability exports
+export * from './routing/adaptive-router.js';
+export * from './observability/observability-tracker.js';
+
 // Convenience System Factory
 import { MelchiorAgent } from './agents/melchior.agent.js';
 import { BalthasarAgent } from './agents/balthasar.agent.js';
@@ -45,6 +49,7 @@ import type { ILanguageModelProvider } from './providers/provider.interface.js';
 import type { IDisagreementDetector } from './deliberation/disagreement-detector.interface.js';
 import { HybridDisagreementDetector } from './deliberation/hybrid-disagreement-detector.js';
 import { GeminiProvider } from './providers/gemini/gemini.provider.js';
+import { AdaptiveRouter } from './routing/adaptive-router.js';
 
 export interface MagiSystemOptions {
   provider?: ILanguageModelProvider;
@@ -77,5 +82,15 @@ export function createMagiSystem(options: MagiSystemOptions = {}): DeliberationE
     magiCore,
     disagreementDetector: detector,
     hooks: options.hooks,
+  });
+}
+
+export function createAdaptiveMagiSystem(options: MagiSystemOptions = {}): AdaptiveRouter {
+  const provider = options.provider ?? new GeminiProvider({ defaultModel: options.model });
+  const deliberationEngine = createMagiSystem(options);
+  return new AdaptiveRouter({
+    provider,
+    deliberationEngine,
+    model: options.model,
   });
 }
