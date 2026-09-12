@@ -70,6 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const tacticalCoreVerdict = document.getElementById('tactical-core-verdict');
 
   // Anime View Elements
+  const animeCrtMonitor = document.querySelector('.anime-crt-monitor');
   const animeScreenBalthasar = document.getElementById('anime-screen-balthasar');
   const animeScreenCasper = document.getElementById('anime-screen-casper');
   const animeScreenMelchior = document.getElementById('anime-screen-melchior');
@@ -1517,6 +1518,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function resetAnimeStandby() {
     stopTelemetryCycling();
     finishedAnimeAgents.clear();
+    if (animeCrtMonitor) animeCrtMonitor.classList.remove('emergency-alarm');
 
     const screens = [animeScreenBalthasar, animeScreenCasper, animeScreenMelchior];
     screens.forEach(s => {
@@ -1544,6 +1546,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function startAnimeDeliberation(question) {
     finishedAnimeAgents.clear();
     startTelemetryCycling();
+    if (animeCrtMonitor) animeCrtMonitor.classList.remove('emergency-alarm');
 
     const screens = [animeScreenBalthasar, animeScreenCasper, animeScreenMelchior];
     screens.forEach(s => {
@@ -1622,28 +1625,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (isRejected) {
       // Scenario B: Impasse / Rejection Lockout
+      if (animeCrtMonitor) animeCrtMonitor.classList.add('emergency-alarm');
       if (animeConsensusStamp) {
         animeConsensusStamp.className = 'anime-stamp-box stamp-rejected';
         if (animeStampText) animeStampText.textContent = '否 決';
       }
       if (animeResolutionLabel) animeResolutionLabel.textContent = 'SECURITY LOCK: IMPASSE / REJECTED';
       playImpasseAlarm();
-    } else if (approveCount === 3) {
-      // Scenario A: Unanimous Pass (3-0)
-      if (animeConsensusStamp) {
-        animeConsensusStamp.className = 'anime-stamp-box stamp-consensus';
-        if (animeStampText) animeStampText.textContent = '合 意';
-      }
-      if (animeResolutionLabel) animeResolutionLabel.textContent = 'RESOLUTION: PASSED (3-0 UNANIMOUS)';
-      playConsensusChime();
     } else {
-      // Scenario A: Majority / Conditional Pass (2-1)
-      if (animeConsensusStamp) {
-        animeConsensusStamp.className = 'anime-stamp-box stamp-passed';
-        if (animeStampText) animeStampText.textContent = '可 決';
+      if (animeCrtMonitor) animeCrtMonitor.classList.remove('emergency-alarm');
+      if (approveCount === 3) {
+        // Scenario A: Unanimous Pass (3-0)
+        if (animeConsensusStamp) {
+          animeConsensusStamp.className = 'anime-stamp-box stamp-consensus';
+          if (animeStampText) animeStampText.textContent = '合 意';
+        }
+        if (animeResolutionLabel) animeResolutionLabel.textContent = 'RESOLUTION: PASSED (3-0 UNANIMOUS)';
+        playConsensusChime();
+      } else {
+        // Scenario A: Majority / Conditional Pass (2-1)
+        if (animeConsensusStamp) {
+          animeConsensusStamp.className = 'anime-stamp-box stamp-passed';
+          if (animeStampText) animeStampText.textContent = '可 決';
+        }
+        if (animeResolutionLabel) animeResolutionLabel.textContent = `RESOLUTION: PASSED (${result.finalDecision.replace('_', ' ')})`;
+        playConsensusChime();
       }
-      if (animeResolutionLabel) animeResolutionLabel.textContent = `RESOLUTION: PASSED (${result.finalDecision.replace('_', ' ')})`;
-      playConsensusChime();
     }
 
     const tokensVal = document.getElementById('anime-telemetry-tokens');

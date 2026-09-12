@@ -1667,6 +1667,65 @@ body.magi-body {
   border-top: 2px solid #ff7700;
 }
 
+/* EMERGENCY ALARM STATE (Episode 13 / Rejection & Impasse Lockout) */
+.anime-crt-monitor.emergency-alarm {
+  border-color: #ff1744;
+  animation: monitorEmergencyPulse 1.2s infinite ease-in-out;
+}
+
+.anime-crt-monitor.emergency-alarm .hazard-stripe {
+  background: repeating-linear-gradient(
+    -45deg,
+    #000000,
+    #000000 12px,
+    #ff1744 12px,
+    #ff1744 24px
+  );
+  animation: hazardStrobe 0.7s infinite alternate ease-in-out;
+}
+
+.anime-crt-monitor.emergency-alarm .top-hazard {
+  border-bottom: 2px solid #ff1744;
+}
+
+.anime-crt-monitor.emergency-alarm .bottom-hazard {
+  border-top: 2px solid #ff1744;
+}
+
+.anime-crt-monitor.emergency-alarm .nexus-plaque {
+  border-color: #ff1744;
+  box-shadow: 0 0 25px rgba(255, 23, 68, 0.85);
+}
+
+.anime-crt-monitor.emergency-alarm .nexus-plaque span {
+  color: #ff1744;
+  text-shadow: 0 0 12px rgba(255, 23, 68, 0.9);
+}
+
+.anime-crt-monitor.emergency-alarm .nexus-bus-line,
+.anime-crt-monitor.emergency-alarm .nexus-bus-horizontal {
+  background: #ff1744;
+  box-shadow: 0 0 10px #ff1744;
+}
+
+@keyframes monitorEmergencyPulse {
+  0%, 100% {
+    box-shadow: 0 0 35px rgba(255, 23, 68, 0.4), inset 0 0 40px rgba(255, 23, 68, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 60px rgba(255, 23, 68, 0.8), inset 0 0 70px rgba(255, 23, 68, 0.35);
+  }
+}
+
+@keyframes hazardStrobe {
+  0% {
+    filter: brightness(1) drop-shadow(0 0 4px #ff1744);
+  }
+  100% {
+    filter: brightness(1.7) drop-shadow(0 0 18px #ff0033);
+  }
+}
+
 .anime-frame-inner {
   padding: 1.4rem 2rem 1.2rem 2rem;
   display: flex;
