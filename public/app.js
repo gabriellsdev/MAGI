@@ -88,6 +88,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const animeQuestionForm = document.getElementById('anime-question-form');
   const animeConsoleInput = document.getElementById('anime-console-input');
   const animeConsoleSubmitBtn = document.getElementById('anime-console-submit-btn');
+  const fullscreenBtn = document.getElementById('fullscreen-btn');
+  const animeMonitorFsBtn = document.getElementById('anime-monitor-fullscreen-btn');
 
   // Anime Chat Elements
   const animeChatWrapper = document.getElementById('anime-chat-wrapper');
@@ -1140,18 +1142,45 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Auto-resize for anime console textarea to expand downwards
+  function autoResizeTextarea(el) {
+    if (!el) return;
+    el.style.height = 'auto';
+    const newHeight = Math.max(38, Math.min(el.scrollHeight, 240));
+    el.style.height = newHeight + 'px';
+  }
+
+  // Initial resize
+  autoResizeTextarea(animeConsoleInput);
+
   queryInput?.addEventListener('input', () => {
     syncQueryDisplay(queryInput.value, 'main');
   });
 
   animeConsoleInput?.addEventListener('input', () => {
+    autoResizeTextarea(animeConsoleInput);
     syncQueryDisplay(animeConsoleInput.value, 'anime');
+  });
+
+  // Enter to submit query, Shift+Enter for new line
+  animeConsoleInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (animeQuestionForm.requestSubmit) {
+        animeQuestionForm.requestSubmit();
+      } else {
+        animeQuestionForm.dispatchEvent(new Event('submit', { cancelable: true }));
+      }
+    }
   });
 
   function syncQueryDisplay(q, source = null) {
     const text = q.trim() || 'Awaiting query...';
     if (tacticalQueryDisplay) tacticalQueryDisplay.textContent = text;
-    if (animeConsoleInput && source !== 'anime') animeConsoleInput.value = q;
+    if (animeConsoleInput && source !== 'anime') {
+      animeConsoleInput.value = q;
+      autoResizeTextarea(animeConsoleInput);
+    }
     if (queryInput && source !== 'main') queryInput.value = q;
   }
 
@@ -1167,6 +1196,45 @@ document.addEventListener('DOMContentLoaded', () => {
       form.dispatchEvent(new Event('submit', { cancelable: true }));
     }
   });
+
+  // -------------------------------------------------------------
+  // Fullscreen Management (HUD & Anime Monitor)
+  // -------------------------------------------------------------
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      const el = document.documentElement;
+      if (el.requestFullscreen) {
+        el.requestFullscreen().catch(() => {});
+      } else if (el.webkitRequestFullscreen) {
+        el.webkitRequestFullscreen();
+      }
+      playBeep(660, 0.05, 'sine');
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      }
+      playBeep(440, 0.05, 'sine');
+    }
+  }
+
+  function updateFullscreenUI() {
+    const isFs = !!document.fullscreenElement;
+    document.body.classList.toggle('is-fullscreen', isFs);
+    if (fullscreenBtn) {
+      fullscreenBtn.innerHTML = isFs ? 'EXIT FULLSCREEN ✕' : 'FULLSCREEN ⛶';
+      fullscreenBtn.classList.toggle('active', isFs);
+    }
+    if (animeMonitorFsBtn) {
+      animeMonitorFsBtn.innerHTML = isFs ? '✕ MINIMIZE' : '⛶ FULLSCREEN';
+    }
+  }
+
+  fullscreenBtn?.addEventListener('click', toggleFullscreen);
+  animeMonitorFsBtn?.addEventListener('click', toggleFullscreen);
+  document.addEventListener('fullscreenchange', updateFullscreenUI);
+  document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
 
   // -------------------------------------------------------------
   // Beacon & Stepper Helpers

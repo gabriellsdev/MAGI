@@ -217,6 +217,31 @@ body.magi-body {
   box-shadow: 0 0 8px var(--melchior-glow);
 }
 
+.fullscreen-toggle-btn {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  color: var(--text-dim);
+  padding: 0.4rem 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  cursor: pointer;
+  border-radius: 2px;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+
+.fullscreen-toggle-btn:hover {
+  color: var(--text-highlight);
+  border-color: var(--core-color);
+  box-shadow: 0 0 8px var(--core-glow);
+}
+
+.fullscreen-toggle-btn.active {
+  border-color: var(--core-color);
+  color: var(--core-color);
+  box-shadow: 0 0 10px var(--core-glow);
+}
+
 .system-status-indicator {
   display: flex;
   align-items: center;
@@ -1856,6 +1881,26 @@ body.magi-body {
   text-align: right;
 }
 
+.anime-monitor-fs-btn {
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid #ff7700;
+  color: #ffaa33;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 1px;
+  padding: 0.25rem 0.65rem;
+  cursor: pointer;
+  border-radius: 2px;
+  margin-top: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.anime-monitor-fs-btn:hover {
+  background: #ff7700;
+  color: #000000;
+  box-shadow: 0 0 10px rgba(255, 119, 0, 0.6);
+}
+
 /* ============================================================= */
 /* CENTRAL TRIAD POLYS: BALTHASAR (TOP), CASPER (L), MELCHIOR (R)*/
 /* ============================================================= */
@@ -2182,9 +2227,19 @@ body.magi-body {
   gap: 0.8rem;
 }
 
+.anime-console-row.anime-console-question-row {
+  align-items: flex-start;
+  padding-top: 0.2rem;
+}
+
+.anime-console-row.anime-console-question-row .console-label {
+  padding-top: 0.45rem;
+}
+
 .console-label {
   width: 110px;
   letter-spacing: 1px;
+  flex-shrink: 0;
 }
 
 .console-code-dots {
@@ -2196,22 +2251,29 @@ body.magi-body {
   display: flex;
   flex-grow: 1;
   gap: 0.6rem;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .console-question-input {
   flex-grow: 1;
+  width: 100%;
+  min-height: 38px;
+  max-height: 240px;
+  resize: vertical;
+  overflow-y: auto;
   background: #05070c;
   border: 1px solid #ff7700;
   color: #ffffff;
   font-family: var(--font-mono);
   font-size: 0.95rem;
-  padding: 0.35rem 0.8rem;
+  padding: 0.45rem 0.8rem;
   outline: none;
   border-radius: 2px;
-  line-height: 1.3;
+  line-height: 1.45;
   letter-spacing: 0.5px;
-  transition: all 0.2s ease-out;
+  word-break: break-word;
+  white-space: pre-wrap;
+  transition: border-color 0.2s ease-out, box-shadow 0.2s ease-out, background 0.2s ease-out;
 }
 
 .console-question-input:focus {
@@ -2226,6 +2288,17 @@ body.magi-body {
   letter-spacing: 1px;
 }
 
+.console-question-input::-webkit-scrollbar {
+  width: 5px;
+}
+.console-question-input::-webkit-scrollbar-track {
+  background: #050810;
+}
+.console-question-input::-webkit-scrollbar-thumb {
+  background: #ff7700;
+  border-radius: 2px;
+}
+
 .anime-console-submit-btn {
   background: rgba(255, 119, 0, 0.15);
   border: 1px solid #ff7700;
@@ -2234,11 +2307,16 @@ body.magi-body {
   font-size: 0.82rem;
   font-weight: bold;
   letter-spacing: 1px;
-  padding: 0.35rem 0.9rem;
+  padding: 0.5rem 0.9rem;
   border-radius: 2px;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s ease;
+  height: 38px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .anime-console-submit-btn:hover:not(:disabled) {
@@ -2598,6 +2676,51 @@ body.magi-body {
   gap: 1rem;
   letter-spacing: 0.5px;
 }
+
+/* Chat User Query Wrapping */
+.chat-user-text {
+  color: #ffffff;
+  font-size: 0.92rem;
+  word-break: break-word;
+  white-space: pre-wrap;
+  line-height: 1.45;
+}
+
+/* ============================================================= */
+/* FULLSCREEN TERMINAL EXPANSION                                 */
+/* ============================================================= */
+.magi-body.is-fullscreen {
+  overflow-y: auto;
+}
+
+.magi-body.is-fullscreen .hud-container {
+  max-width: 98vw;
+  padding: 0.6rem 1.2rem;
+}
+
+.magi-body.is-fullscreen .anime-crt-monitor {
+  max-width: 1400px;
+  width: 96vw;
+  box-shadow: 0 0 60px rgba(255, 119, 0, 0.4), inset 0 0 50px rgba(0, 0, 0, 0.95);
+}
+
+.magi-body.is-fullscreen .anime-triad-stage {
+  min-height: 520px;
+}
+
+.magi-body.is-fullscreen .anime-screen {
+  transform: scale(1.08);
+}
+
+.magi-body.is-fullscreen .tactical-box-frame {
+  max-width: 1300px;
+}
+
+.magi-body.is-fullscreen .anime-chat-wrapper {
+  max-width: 1400px;
+  width: 96vw;
+}
+
 
 
 

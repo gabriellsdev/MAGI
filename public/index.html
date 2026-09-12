@@ -69,6 +69,11 @@
           <button type="button" id="query-toggle-btn" class="query-toggle-btn" title="Toggle Query Console Panel">QUERY: HIDE ▲</button>
         </div>
 
+        <!-- FULLSCREEN TOGGLE -->
+        <div class="control-item">
+          <button type="button" id="fullscreen-btn" class="fullscreen-toggle-btn" title="Toggle Fullscreen Mode">FULLSCREEN ⛶</button>
+        </div>
+
         <div class="system-status-indicator">
           <span class="status-pulse"></span>
           <span class="status-label" id="system-status-text">SYSTEM READY</span>
@@ -159,6 +164,7 @@
                   <span id="anime-stamp-text">待 機</span>
                 </div>
                 <div class="anime-resolution-label" id="anime-resolution-label">RESOLUTION: STANDBY</div>
+                <button type="button" id="anime-monitor-fullscreen-btn" class="anime-monitor-fs-btn" title="Expand MAGI Monitor to Fullscreen">⛶ EXPAND TERMINAL</button>
               </div>
             </div>
 
@@ -224,18 +230,17 @@
               <span class="console-label" id="lbl-access-code">access code:</span>
               <span class="console-code-dots">********************************</span>
             </div>
-            <div class="anime-console-row">
+            <div class="anime-console-row anime-console-question-row">
               <span class="console-label" id="lbl-question">question:</span>
               <form id="anime-question-form" class="anime-question-form">
-                <input
-                  type="text"
+                <textarea
                   id="anime-console-input"
                   class="console-question-input"
-                  placeholder="TYPE YOUR QUESTION (ENTER OR CLICK EXECUTE)..."
-                  value="Should we migrate to Rust?"
+                  placeholder="TYPE YOUR QUESTION (ENTER OR CLICK EXECUTE, SHIFT+ENTER FOR NEW LINE)..."
+                  rows="1"
                   autocomplete="off"
                   required
-                />
+                >Should we migrate to Rust?</textarea>
                 <button type="submit" id="anime-console-submit-btn" class="anime-console-submit-btn" title="Initiate Core Deliberation">
                   EXECUTE [↵]
                 </button>
