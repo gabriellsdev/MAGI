@@ -24,7 +24,7 @@ export class GeminiProvider implements ILanguageModelProvider {
   private timeoutMs: number;
 
   constructor(config: GeminiProviderConfig = {}) {
-    this.apiKey = config.apiKey || process.env.GEMINI_API_KEY || '';
+    this.apiKey = config.apiKey !== undefined ? config.apiKey : (process.env.GEMINI_API_KEY || '');
     this.defaultModel = config.defaultModel || DEFAULT_GEMINI_MODEL;
     this.maxRetries = config.maxRetries ?? DEFAULT_GEMINI_MAX_RETRIES;
     this.timeoutMs = config.timeoutMs ?? DEFAULT_GEMINI_TIMEOUT_MS;

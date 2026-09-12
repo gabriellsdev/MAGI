@@ -26,6 +26,11 @@ export * from './deliberation/magi-core.js';
 export * from './deliberation/deliberation-engine.js';
 export * from './providers/retry.utils.js';
 
+// Evaluation exports
+export * from './evaluation/evaluation.types.js';
+export * from './evaluation/llm-judge.js';
+export * from './evaluation/eval-runner.js';
+
 // Convenience System Factory
 import { MelchiorAgent } from './agents/melchior.agent.js';
 import { BalthasarAgent } from './agents/balthasar.agent.js';

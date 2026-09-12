@@ -12,6 +12,7 @@
     "start": "tsx src/cli/main.ts",
     "serve": "tsx src/server/server.ts",
     "benchmark": "tsx src/benchmark/benchmark-runner.ts",
+    "eval": "tsx src/evaluation/eval-runner.ts",
     "test:gemini": "tsx src/scripts/test-gemini-live.ts",
     "test:supabase": "tsx src/scripts/test-supabase.ts"
   },
