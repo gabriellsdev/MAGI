@@ -1,8 +1,11 @@
 import type { MagiSynthesisResult } from '../domain/types.js';
 
 export type BenchmarkCategory =
-  | 'SOCIETAL_GOVERNANCE'
   | 'SYSTEM_ARCHITECTURE'
+  | 'TROUBLESHOOTING'
+  | 'ENGINEERING_DECISION'
+  | 'INFRASTRUCTURE_PLANNING'
+  | 'SOCIETAL_GOVERNANCE'
   | 'AUTONOMOUS_RISK'
   | 'ETHICAL_DILEMMA';
 
@@ -13,6 +16,7 @@ export interface BenchmarkDilemma {
   question: string;
   description: string;
   expectedConflict: string;
+  keyTradeoffs?: string[];
 }
 
 export interface BenchmarkScorecard {
@@ -36,5 +40,10 @@ export interface BenchmarkSuiteSummary {
   consensusRate: number; // 0.0 to 1.0
   averageRounds: number;
   averageDurationMs: number;
+  cacheStats?: {
+    hits: number;
+    misses: number;
+    tokensSaved: number;
+  };
   scorecards: BenchmarkScorecard[];
 }

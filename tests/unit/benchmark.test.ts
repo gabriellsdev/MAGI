@@ -20,7 +20,7 @@ describe('Benchmark Evaluation Suite (V1.3)', () => {
   });
 
   it('should execute benchmark suite in mock mode and return complete summary', async () => {
-    const summary = await runBenchmarkSuite({ useMock: true });
+    const summary = await runBenchmarkSuite({ dilemmas: STANDARD_BENCHMARK_SUITE, useMock: true });
 
     expect(summary).toBeDefined();
     expect(summary.totalDilemmas).toBe(STANDARD_BENCHMARK_SUITE.length);
@@ -41,5 +41,11 @@ describe('Benchmark Evaluation Suite (V1.3)', () => {
       expect(card.qualityScores.CASPER).toBeGreaterThan(0);
       expect(card.coreVerdict).toBeDefined();
     }
+  });
+
+  it('should execute dynamically loaded benchmarks with limit', async () => {
+    const summary = await runBenchmarkSuite({ limit: 3, useMock: true });
+    expect(summary.totalDilemmas).toBe(3);
+    expect(summary.scorecards.length).toBe(3);
   });
 });

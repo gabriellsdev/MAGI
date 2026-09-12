@@ -9,6 +9,7 @@ export * from './providers/gemini/gemini.config.js';
 export * from './providers/gemini/gemini.provider.js';
 export * from './providers/mock/mock.provider.js';
 export * from './providers/mock/fixtures.js';
+export * from './providers/cache/cached.provider.js';
 
 // Agent exports
 export * from './agents/agent.interface.js';

@@ -6,6 +6,7 @@ import {
   geminiBaselineSocietyResponse,
 } from '../providers/mock/fixtures.js';
 import { GeminiProvider } from '../providers/gemini/gemini.provider.js';
+import { DEFAULT_GEMINI_MODEL } from '../providers/gemini/gemini.config.js';
 import type {
   SingleModelResponse,
   ComparisonDifferential,
@@ -39,7 +40,7 @@ export async function runComparison(
       singleBaseline = geminiBaselineSocietyResponse;
     } else {
       singleBaseline = {
-        model: 'gemini-2.5-pro (single)',
+        model: `${DEFAULT_GEMINI_MODEL} (single)`,
         summary: `Standard single-model balanced assessment of "${question}".`,
         pros: ['Direct benefits and potential upside.', 'Standard industry adoption trends.'],
         cons: ['Implementation complexity.', 'Resource allocation constraints.'],
@@ -47,7 +48,7 @@ export async function runComparison(
       };
     }
   } else {
-    const provider = new GeminiProvider({ defaultModel: 'gemini-2.5-pro' });
+    const provider = new GeminiProvider({ defaultModel: DEFAULT_GEMINI_MODEL });
     const prompt = `You are a senior strategic advisor. Provide an objective, balanced evaluation of:\n"${question}"\nOutput your pros, cons, executive summary, and final verdict according to schema.`;
     const res = await provider.generateStructured({
       systemInstruction: 'You are an objective AI advisor. Present a standard balanced perspective with pros, cons, and a verdict.',
@@ -57,7 +58,7 @@ export async function runComparison(
       config: { temperature: 0.2 },
     });
     singleBaseline = {
-      model: 'gemini-2.5-pro',
+      model: DEFAULT_GEMINI_MODEL,
       summary: res.data.summary,
       pros: res.data.pros,
       cons: res.data.cons,
@@ -98,7 +99,7 @@ export async function runComparison(
     });
     magiProvider = mock;
   } else {
-    magiProvider = new GeminiProvider({ defaultModel: 'gemini-2.5-pro' });
+    magiProvider = new GeminiProvider({ defaultModel: DEFAULT_GEMINI_MODEL });
   }
 
   const magi = createMagiSystem({ provider: magiProvider });

@@ -1,14 +1,19 @@
+import fs from 'fs';
+import path from 'path';
 import 'dotenv/config';
 import { createMagiSystem } from '../index.js';
 import { MockLanguageModelProvider } from '../providers/mock/mock.provider.js';
 import {
   getThematicFixture,
-  instantConsensusFixtures,
-  persistentDeadlockFixtures,
 } from '../providers/mock/fixtures.js';
 import { GeminiProvider } from '../providers/gemini/gemini.provider.js';
+import { DEFAULT_GEMINI_MODEL } from '../providers/gemini/gemini.config.js';
+import { CachedProvider } from '../providers/cache/cached.provider.js';
+import type { ILanguageModelProvider } from '../providers/provider.interface.js';
 import { STANDARD_BENCHMARK_SUITE } from './benchmark.suites.js';
+import { loadAllBenchmarks } from './benchmark-loader.js';
 import type {
+  BenchmarkCategory,
   BenchmarkDilemma,
   BenchmarkScorecard,
   BenchmarkSuiteSummary,
@@ -16,20 +21,43 @@ import type {
 
 export interface BenchmarkRunnerOptions {
   dilemmas?: BenchmarkDilemma[];
+  category?: BenchmarkCategory;
+  limit?: number;
   useMock?: boolean;
+  useCache?: boolean;
+  saveReport?: boolean;
   verbose?: boolean;
 }
 
 export async function runBenchmarkSuite(
   options: BenchmarkRunnerOptions = {}
 ): Promise<BenchmarkSuiteSummary> {
-  const dilemmas = options.dilemmas || STANDARD_BENCHMARK_SUITE;
+  let dilemmas = options.dilemmas;
+
+  if (!dilemmas) {
+    try {
+      dilemmas = await loadAllBenchmarks({
+        category: options.category,
+        limit: options.limit,
+      });
+    } catch {
+      // Fallback to in-memory standard suite if benchmarks directory is unavailable
+      dilemmas = STANDARD_BENCHMARK_SUITE;
+      if (options.limit && options.limit > 0) {
+        dilemmas = dilemmas.slice(0, options.limit);
+      }
+    }
+  }
+
   const isMock = options.useMock ?? (!process.env.GEMINI_API_KEY);
+  const useCache = options.useCache ?? true;
   const scorecards: BenchmarkScorecard[] = [];
   const startSuiteTime = Date.now();
 
+  let cachedProviderWrapper: CachedProvider | null = null;
+
   for (const dilemma of dilemmas) {
-    let provider;
+    let baseProvider: ILanguageModelProvider;
     if (isMock) {
       const mock = new MockLanguageModelProvider();
       const fixture = getThematicFixture(dilemma.question);
@@ -41,8 +69,6 @@ export async function runBenchmarkSuite(
 
         const isRound1 = req.systemInstruction?.includes('DELIBERATION ROUND 1');
         const isRound2 = req.systemInstruction?.includes('DELIBERATION ROUND 2');
-
-        // Check if fixture has round2 (e.g. persistent deadlock)
         const fAny = fixture as any;
 
         if (req.systemInstruction?.includes('MELCHIOR-1')) {
@@ -63,12 +89,20 @@ export async function runBenchmarkSuite(
 
         return undefined;
       });
-      provider = mock;
+      baseProvider = mock;
     } else {
-      provider = new GeminiProvider({ defaultModel: 'gemini-2.5-pro' });
+      baseProvider = new GeminiProvider({ defaultModel: DEFAULT_GEMINI_MODEL });
     }
 
-    const magi = createMagiSystem({ provider });
+    let finalProvider: ILanguageModelProvider = baseProvider;
+    if (useCache) {
+      if (!cachedProviderWrapper) {
+        cachedProviderWrapper = new CachedProvider(baseProvider);
+      }
+      finalProvider = cachedProviderWrapper;
+    }
+
+    const magi = createMagiSystem({ provider: finalProvider });
     const dilemmaStart = Date.now();
     const result = await magi.run(dilemma.question);
     const durationMs = Date.now() - dilemmaStart;
@@ -93,29 +127,63 @@ export async function runBenchmarkSuite(
   const totalRounds = scorecards.reduce((acc, s) => acc + s.roundsCount, 0);
   const totalDuration = Date.now() - startSuiteTime;
 
-  return {
+  const summary: BenchmarkSuiteSummary = {
     timestamp: new Date().toISOString(),
     totalDilemmas,
     consensusRate: totalDilemmas > 0 ? consensusCount / totalDilemmas : 0,
     averageRounds: totalDilemmas > 0 ? parseFloat((totalRounds / totalDilemmas).toFixed(2)) : 0,
     averageDurationMs: totalDilemmas > 0 ? Math.round(totalDuration / totalDilemmas) : 0,
+    cacheStats: cachedProviderWrapper ? cachedProviderWrapper.getStats() : undefined,
     scorecards,
   };
+
+  if (options.saveReport) {
+    try {
+      const resultsDir = path.resolve(process.cwd(), 'results');
+      if (!fs.existsSync(resultsDir)) {
+        fs.mkdirSync(resultsDir, { recursive: true });
+      }
+      const reportPath = path.join(resultsDir, 'benchmark-results.json');
+      fs.writeFileSync(reportPath, JSON.stringify(summary, null, 2), 'utf-8');
+    } catch {
+      // Best effort saving
+    }
+  }
+
+  return summary;
 }
 
 // CLI Execution if invoked directly
 if (process.argv[1]?.endsWith('benchmark-runner.ts') || process.argv[1]?.endsWith('benchmark-runner.js')) {
   (async () => {
     console.log('\n' + '='.repeat(75));
-    console.log('  \x1b[1m\x1b[35mMAGI SUPERCOMPUTER // EVALUATION & BENCHMARK SUITE\x1b[0m');
+    console.log('  \x1b[1m\x1b[35mMAGI SUPERCOMPUTER // V3 BENCHMARK & EVALUATION ENGINE\x1b[0m');
     console.log('='.repeat(75) + '\n');
 
-    const summary = await runBenchmarkSuite();
+    const args = process.argv.slice(2);
+    const limitArg = args.find(a => a.startsWith('--limit='));
+    const categoryArg = args.find(a => a.startsWith('--category='));
+    const limit = limitArg ? parseInt(limitArg.split('=')[1], 10) : (args.includes('--all') ? undefined : 4);
+    const category = categoryArg ? (categoryArg.split('=')[1] as BenchmarkCategory) : undefined;
+    const noCache = args.includes('--no-cache');
+    const isMockCli = args.includes('--mock');
+
+    const summary = await runBenchmarkSuite({
+      limit,
+      category,
+      useMock: isMockCli ? true : undefined,
+      useCache: !noCache,
+      saveReport: true,
+    });
 
     console.log(`\x1b[1mTOTAL DILEMMAS EVALUATED:\x1b[0m ${summary.totalDilemmas}`);
     console.log(`\x1b[1mCONSENSUS RESOLUTION RATE:\x1b[0m ${(summary.consensusRate * 100).toFixed(0)}%`);
     console.log(`\x1b[1mAVG DELIBERATION ROUNDS:\x1b[0m  ${summary.averageRounds}`);
-    console.log(`\x1b[1mAVG EXECUTION TIME:\x1b[0m       ${summary.averageDurationMs} ms\n`);
+    console.log(`\x1b[1mAVG EXECUTION TIME:\x1b[0m       ${summary.averageDurationMs} ms`);
+    if (summary.cacheStats) {
+      console.log(`\x1b[1mCACHE STATS:\x1b[0m              Hits: ${summary.cacheStats.hits} | Misses: ${summary.cacheStats.misses} | Tokens Saved: ${summary.cacheStats.tokensSaved}`);
+    }
+    console.log('');
 
     console.log('-'.repeat(75));
     console.log('  DILEMMA SCORECARDS');
@@ -134,3 +202,4 @@ if (process.argv[1]?.endsWith('benchmark-runner.ts') || process.argv[1]?.endsWit
     process.exit(1);
   });
 }
+

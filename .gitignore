@@ -7,6 +7,9 @@ node_modules/
 # Build artifacts
 dist/
 
+# Documentation
+docs/
+
 # Test coverage
 coverage/
 
@@ -15,6 +18,9 @@ report.json
 *.local
 CliOutput.txt
 GeminiResponse.txt
+magi-v3-architecture.md
+.cache/
+results/
 
 # Environment variables
 .env

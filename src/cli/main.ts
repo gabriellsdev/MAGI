@@ -6,6 +6,7 @@ import { createMagiSystem } from '../index.js';
 import { MockLanguageModelProvider } from '../providers/mock/mock.provider.js';
 import { resolvedInRoundOneFixtures } from '../providers/mock/fixtures.js';
 import { GeminiProvider } from '../providers/gemini/gemini.provider.js';
+import { DEFAULT_GEMINI_MODEL } from '../providers/gemini/gemini.config.js';
 import type { AgentStructuredOutput, DisagreementReport, MagiSynthesisResult } from '../domain/types.js';
 
 function formatStance(stance: string): string {
@@ -178,7 +179,7 @@ async function main() {
       console.error(`  Or run hermetic mock mode: npx tsx src/cli/main.ts --mock\n`);
       process.exit(1);
     }
-    provider = new GeminiProvider({ apiKey: key, defaultModel: 'gemini-2.5-pro' });
+    provider = new GeminiProvider({ apiKey: key, defaultModel: DEFAULT_GEMINI_MODEL });
   }
 
   if (!isJsonOnly) {
@@ -194,7 +195,7 @@ async function main() {
       ` + '\x1b[0m');
     }
     console.log(`Query: "${question}"`);
-    console.log(`Provider: ${isMock ? 'Hermetic Mock Provider (Fixtures)' : 'Google Gemini 2.5 Pro'}`);
+    console.log(`Provider: ${isMock ? 'Hermetic Mock Provider (Fixtures)' : `Google ${DEFAULT_GEMINI_MODEL}`}`);
   }
 
   const hooks = isJsonOnly ? {} : {
@@ -219,7 +220,7 @@ async function main() {
   const magi = createMagiSystem({
     provider,
     hooks,
-    model: 'gemini-2.5-pro',
+    model: DEFAULT_GEMINI_MODEL,
   });
 
   const result: MagiSynthesisResult = await magi.run(question, { language: languageOverride });
