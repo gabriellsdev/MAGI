@@ -32,6 +32,8 @@ export * from './providers/retry.utils.js';
 export * from './evaluation/evaluation.types.js';
 export * from './evaluation/llm-judge.js';
 export * from './evaluation/eval-runner.js';
+export * from './evaluation/ablation.types.js';
+export * from './evaluation/ablation-runner.js';
 
 // Convenience System Factory
 import { MelchiorAgent } from './agents/melchior.agent.js';

@@ -275,4 +275,54 @@ Score Solution A and Solution B on all 4 dimensions (1-10), choose the winner (C
       comparativeAnalysis: `Position-Swapped Evaluation (Bias Neutralized):\n[Forward Pass]: ${result1.comparativeAnalysis}\n[Inverted Pass]: ${result2.comparativeAnalysis}`,
     };
   }
+
+  public canonicalizeGeneric(candidate: {
+    summary: string;
+    keyArguments: string[];
+    identifiedRisks: string[];
+    finalRecommendation: string;
+  }): Omit<BlindedCandidate, 'candidateId'> {
+    return {
+      executiveSummary: this.sanitizeText(candidate.summary),
+      keyArguments: Array.from(new Set(candidate.keyArguments.map(a => this.sanitizeText(a)))).slice(0, 8),
+      identifiedRisks: Array.from(new Set(candidate.identifiedRisks.map(r => this.sanitizeText(r)))).slice(0, 6),
+      finalRecommendation: this.sanitizeText(candidate.finalRecommendation),
+    };
+  }
+
+  public async evaluateArbitraryPair(
+    dilemma: BenchmarkDilemma,
+    candidateA: Omit<BlindedCandidate, 'candidateId'>,
+    candidateB: Omit<BlindedCandidate, 'candidateId'>,
+    labelA = 'A',
+    labelB = 'B'
+  ): Promise<{
+    scoreA: DimensionScores;
+    scoreB: DimensionScores;
+    winner: string;
+    margin: string;
+    comparativeAnalysis: string;
+  }> {
+    const pairContext: BlindedPairContext = {
+      dilemmaId: dilemma.id,
+      category: dilemma.category,
+      question: dilemma.question,
+      keyTradeoffs: dilemma.keyTradeoffs,
+      solutionA: { candidateId: 'A', ...candidateA },
+      solutionB: { candidateId: 'B', ...candidateB },
+      mapping: { A: labelA, B: labelB },
+    };
+
+    const result = await this.evaluatePairwise(pairContext);
+    const winner =
+      result.winner === 'CANDIDATE_A' ? labelA : result.winner === 'CANDIDATE_B' ? labelB : 'TIE';
+
+    return {
+      scoreA: result.candidateAScores,
+      scoreB: result.candidateBScores,
+      winner,
+      margin: result.margin,
+      comparativeAnalysis: result.comparativeAnalysis,
+    };
+  }
 }

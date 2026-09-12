@@ -13,6 +13,7 @@
     "serve": "tsx src/server/server.ts",
     "benchmark": "tsx src/benchmark/benchmark-runner.ts",
     "eval": "tsx src/evaluation/eval-runner.ts",
+    "ablation": "tsx src/evaluation/ablation-cli.ts",
     "test:gemini": "tsx src/scripts/test-gemini-live.ts",
     "test:supabase": "tsx src/scripts/test-supabase.ts"
   },

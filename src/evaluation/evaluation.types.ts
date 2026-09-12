@@ -50,8 +50,8 @@ export interface BlindedPairContext {
   solutionA: BlindedCandidate;
   solutionB: BlindedCandidate;
   mapping: {
-    A: 'SINGLE' | 'MAGI';
-    B: 'SINGLE' | 'MAGI';
+    A: string;
+    B: string;
   };
 }
 
