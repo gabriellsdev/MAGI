@@ -50,9 +50,12 @@ import type { IDisagreementDetector } from './deliberation/disagreement-detector
 import { HybridDisagreementDetector } from './deliberation/hybrid-disagreement-detector.js';
 import { GeminiProvider } from './providers/gemini/gemini.provider.js';
 import { AdaptiveRouter } from './routing/adaptive-router.js';
+import type { AgentId } from './domain/types.js';
 
 export interface MagiSystemOptions {
   provider?: ILanguageModelProvider;
+  agentModels?: Partial<Record<AgentId, string>>;
+  agentProviders?: Partial<Record<AgentId, ILanguageModelProvider>>;
   disagreementDetector?: IDisagreementDetector;
   useArbiter?: boolean;
   arbiterModel?: string;
@@ -62,9 +65,18 @@ export interface MagiSystemOptions {
 
 export function createMagiSystem(options: MagiSystemOptions = {}): DeliberationEngine {
   const provider = options.provider ?? new GeminiProvider({ defaultModel: options.model });
-  const melchior = new MelchiorAgent(provider, options.model);
-  const balthasar = new BalthasarAgent(provider, options.model);
-  const casper = new CasperAgent(provider, options.model);
+
+  const melchiorProvider = options.agentProviders?.MELCHIOR ?? provider;
+  const balthasarProvider = options.agentProviders?.BALTHASAR ?? provider;
+  const casperProvider = options.agentProviders?.CASPER ?? provider;
+
+  const melchiorModel = options.agentModels?.MELCHIOR ?? options.model;
+  const balthasarModel = options.agentModels?.BALTHASAR ?? options.model;
+  const casperModel = options.agentModels?.CASPER ?? options.model;
+
+  const melchior = new MelchiorAgent(melchiorProvider, melchiorModel);
+  const balthasar = new BalthasarAgent(balthasarProvider, balthasarModel);
+  const casper = new CasperAgent(casperProvider, casperModel);
   const magiCore = new MagiCore(provider, options.model);
 
   let detector: IDisagreementDetector | undefined = options.disagreementDetector;

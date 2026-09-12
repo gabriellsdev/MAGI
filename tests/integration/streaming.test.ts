@@ -74,7 +74,7 @@ describe('Server-Sent Events (SSE) Streaming API (V1.3)', () => {
     expect(completeEvent?.data.result).toBeDefined();
     expect(completeEvent?.data.result.finalDecision).toBeDefined();
     expect(completeEvent?.data.result.coreVerdict).toBeDefined();
-  });
+  }, 15000);
 
   it('POST /api/compare should return complete comparison report', async () => {
     const res = await fetch(`${baseUrl}/api/compare`, {

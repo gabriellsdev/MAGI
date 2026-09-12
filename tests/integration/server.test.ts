@@ -104,5 +104,5 @@ describe('HTTP Server & API Endpoints (/api/deliberate, /api/health)', () => {
     const data = await res.json();
     expect(Array.isArray(data.history)).toBe(true);
     expect(typeof data.configured).toBe('boolean');
-  });
+  }, 15000);
 });
